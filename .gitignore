@@ -1,0 +1,126 @@
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment directories
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+lib/
+lib64/
+lib32/
+bin/
+include/
+pyvenv.cfg
+
+# Python packaging files
+*.egg
+*.egg-info/
+dist/
+build/
+wheels/
+*.whl
+*.log
+*.pot
+*.pyc
+pip-log.txt
+pip-delete-this-directory.txt
+
+# macOS-specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux/Unix specific
+*~
+.*.swp
+.swo
+.swn
+.directory
+
+# System generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Environment variable files
+.env
+.env.*
+*.env
+*.env.*
+
+# SQL database files
+*.db
+*.sqlite3
+*.sql
+*.db-journal
+
+# Flask specific files
+instance/
+*.log
+
+# Docker specific files and directories
+docker-compose.override.yml
+*.pid
+db_data/
+volumes/
+
+# PostgreSQL specific files
+postgres_data/
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE specific files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Pytest cache
+.pytest_cache/
+
+# Bash and Shell scripts
+*.sh
+*.bash
+*.bashrc
+*.zshrc
+*.csh
+*.ksh
+*.fish
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.swp
+*.swo
+*.orig
+
+# Logs and temporary files
+*.log
+*.tmp
+*.out
+*.log.*
+
+# Package and version management files
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# Compiled object files, libraries, executables
+*.o
+*.a
+*.so
+*.dll
+*.exe
+*.out
