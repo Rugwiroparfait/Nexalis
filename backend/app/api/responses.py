@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, request, jsonify
 from app.models.response import Response
 from app import db
 
@@ -38,6 +38,6 @@ def get_response(id):
     """
     response = Response.query.get_or_404(id)
 
-    return jsonify({"response": response.to dict()})
+    return jsonify({"response": response.to_dict()})
 
 
