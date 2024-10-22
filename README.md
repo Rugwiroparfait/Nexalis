@@ -7,32 +7,54 @@ Nexalis is a Flask-based web application for creating and managing online forms,
 ```
 nexalis/
 │
-├── app/
-│   ├── __init__.py
-│   ├── models.py
-│   ├── forms.py
-│   ├── routes.py
-│   └── templates/
-│       ├── base.html
-│       ├── index.html
-│       ├── create_form.html
-│       └── view_form.html
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── run.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── form.py
+│   │   │   ├── question.py
+│   │   │   └── response.py
+│   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   ├── form_schema.py
+│   │   │   ├── question_schema.py
+│   │   │   └── response_schema.py
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   ├── forms.py
+│   │   │   ├── questions.py
+│   │   │   └── responses.py
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       └── helpers.py
+│   ├── migrations/
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── test_forms.py
+│   │   ├── test_questions.py
+│   │   └── test_responses.py
+│   └── requirements.txt
 │
-├── static/
-│   ├── css/
-│   │   └── style.css
-│   └── js/
-│       └── script.js
+├── frontend/
+│   ├── static/
+│   │   ├── css/
+│   │   │   └── style.css
+│   │   └── js/
+│   │       └── main.js
+│   ├── templates/
+│   │   ├── base.html
+│   │   ├── index.html
+│   │   ├── create_form.html
+│   │   └── view_form.html
+│   └── views.py
 │
-├── tests/
-│   └── test_app.py
-│
-├── config.py
-├── run.py
-├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
+
 ```
 
 ## Setup and Installation
