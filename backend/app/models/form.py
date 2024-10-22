@@ -1,25 +1,27 @@
-from flask_sqlalchemy import SQLAlchemy
+from app import db
 from datetime import datetime
-# import pytz
-db = SQLAlchemy()
-
-# Define the local timezone (Africa/Kigali for Rwanda)
-# local_tz = pytz.timezone('Africa/Kigali')
 
 class Form(db.Model):
-    __tablename__ = 'forms'
-
+    __tablename__ = 'forms'  # Fixed double asterisks
+    
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(500))
-
-    # the UTC is not my time , so this will be changed later
-    # The time will be set  in commented lines which will be uncommented
-    # timestamp = datetime.now(local_tz)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
     questions = db.relationship('Question', backref='form', lazy=True)
 
-    def __repr__(self):
+    def __repr__(self):  # Fixed double asterisks
         return f"<Form {self.title}>"
-
+    
+    def to_dict(self):
+        """
+        Convert the form object to a dictionary.
+        Returns: Dictionary containing form data
+        """
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'questions': [question.to_dict() for question in self.questions] if self.questions else []
+        }
