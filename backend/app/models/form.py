@@ -8,7 +8,11 @@ class Form(db.Model):
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # relationship with question
     questions = db.relationship('Question', backref='form', lazy=True)
+
+    # relationship with user
+    user_id = db.Column(db.DateTime, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):  # Fixed double asterisks
         return f"<Form {self.title}>"
