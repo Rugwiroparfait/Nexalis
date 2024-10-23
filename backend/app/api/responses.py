@@ -15,13 +15,17 @@ def submit_response():
     """
     data = request.get_json()
     form_id = data.get('form_id')
+    question_id = data.get('question_id')
     answers = data.get('answers')
 
 
     if not form_id or not answers:
         return jsonify({"error":"Form ID and answers are required"}), 400
 
-    new_response = Response(form_id = form_id, answers=answers)
+    # Debug: Log the question_id value
+    # app.logger.info(f"Submitting response with question_id: {question_id}")
+
+    new_response = Response(form_id = form_id,question_id=question_id, answers=answers)
     db.session.add(new_response)
     db.session.commit()
 
