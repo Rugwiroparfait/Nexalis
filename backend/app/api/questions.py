@@ -21,7 +21,7 @@ def create_question():
     if not text or not form_id:
         return jsonify({"error": "Form ID and question text are required"}), 400
 
-    new_question = Question(form_id=form_id, text=text, type=question_type)
+    new_question = Question(form_id=form_id, text=text, question_type=question_type)
     db.session.add(new_question)
     db.session.commit()
     return jsonify({"question": new_question.to_dict()}), 201
