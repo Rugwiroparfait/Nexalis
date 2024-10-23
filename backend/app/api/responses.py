@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from app.models.response import Response
 from app import db
 
@@ -23,7 +23,7 @@ def submit_response():
         return jsonify({"error":"Form ID and answers are required"}), 400
 
     # Debug: Log the question_id value
-    # app.logger.info(f"Submitting response with question_id: {question_id}")
+    current_app.logger.info(f"Submitting response with question_id: {question_id}")
 
     new_response = Response(form_id = form_id,question_id=question_id, answers=answers)
     db.session.add(new_response)
