@@ -27,17 +27,19 @@ def create_app(config_class=Config):
         from .models.form import Form
         from .models.question import Question
         from .models.response import Response
-        
+        from .models.user import User
+
         # Import blueprints
         from .api.forms import bp as forms_bp
         from .api.questions import bp as questions_bp
         from .api.responses import bp as responses_bp
+        from .api.users import  users_bp
         
         # Register blueprints
         app.register_blueprint(forms_bp)
         app.register_blueprint(questions_bp)
         app.register_blueprint(responses_bp)
-        
+        app.register_blueprint(users_bp)
         # Create tables
         db.create_all()
     

@@ -1,7 +1,7 @@
 from app import db
 from datetime import datetime
 
-class User(db.model):
+class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -22,7 +22,7 @@ class User(db.model):
         Returns: Dictionary containing user data
         """
         return {
-            'id': self.id
+            'id': self.id,
             'username': self.username,
             'email': self.email,
             'created_at': self.created_at.isoformat() if self.created_at else None,
