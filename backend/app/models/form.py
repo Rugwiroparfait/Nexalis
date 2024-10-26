@@ -12,7 +12,7 @@ class Form(db.Model):
     questions = db.relationship('Question', backref='form', lazy=True)
 
     # relationship with user
-    user_id = db.Column(db.DateTime, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):  # Fixed double asterisks
         return f"<Form {self.title}>"
