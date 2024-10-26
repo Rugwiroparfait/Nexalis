@@ -10,42 +10,33 @@ nexalis/
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── config.py
-│   │   ├── run.py
 │   │   ├── models/
 │   │   │   ├── __init__.py
 │   │   │   ├── form.py
 │   │   │   ├── question.py
-│   │   │   ├── response.py
-│   │   │   └── user.py
+│   │   │   └── response.py
 │   │   ├── schemas/
 │   │   │   ├── __init__.py
 │   │   │   ├── form_schema.py
 │   │   │   ├── question_schema.py
-│   │   │   ├── response_schema.py
-│   │   │   └── user_schema.py
+│   │   │   └── response_schema.py
 │   │   ├── api/
 │   │   │   ├── __init__.py
 │   │   │   ├── forms.py
 │   │   │   ├── questions.py
 │   │   │   ├── responses.py
-│   │   │   └── auth.py
-│   │   ├── auth/
+│   │   │   └── users.py
+│   │   ├── utils/
 │   │   │   ├── __init__.py
-│   │   │   ├── login.py
-│   │   │   ├── signup.py
-│   │   │   └── token.py
-│   │   └── utils/
-│   │       ├── __init__.py
-│   │       └── helpers.py
+│   │   │   └── helpers.py
 │   ├── migrations/
 │   ├── tests/
 │   │   ├── __init__.py
 │   │   ├── test_forms.py
 │   │   ├── test_questions.py
-│   │   ├── test_responses.py
-│   │   └── test_auth.py
-│   └── requirements.txt
+│   │   └── test_responses.py
+│   ├── config.py
+│   └── run.py
 │
 ├── frontend/
 │   ├── static/
@@ -65,9 +56,11 @@ nexalis/
 │       ├── signup_view()
 │       └── form_views()
 │
+├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
+
 
 ```
 
