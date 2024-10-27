@@ -38,12 +38,19 @@ def create_app(config_class=Config):
         from .api.questions import bp as questions_bp
         from .api.responses import bp as responses_bp
         from .api.users import  users_bp
+
+        # Import frontend blueprint
+        from frontend.views import bp as frontend_bp
+
         
         # Register blueprints
-        app.register_blueprint(forms_bp)
-        app.register_blueprint(questions_bp)
-        app.register_blueprint(responses_bp)
-        app.register_blueprint(users_bp)
+        app.register_blueprint(forms_bp, url_prefix='/api')
+        app.register_blueprint(questions_bp, url_prefix='/api')
+        app.register_blueprint(responses_bp, url_prefix='/api')
+        app.register_blueprint(users_bp, url_prefix='/api')
+
+        # Register frontend blueprint without prefix
+        app.register_blueprint(frontend_bp)
         # Create tables
         db.create_all()
     
