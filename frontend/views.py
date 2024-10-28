@@ -19,7 +19,7 @@ def signup_view():
             json={'username': username, 'email': email, 'password': password}
         )
 
-        if response.status_code == 201:
+        if response.status_code == 200 or response.status_code == 201:
             flash('Account created successfully! Please log in.', 'success')
             return redirect(url_for('frontend.login_view'))  # Adjusted to use the frontend prefix
         else:
@@ -56,6 +56,14 @@ def dashboard_view():
         flash('Please log in to access this page.', 'warning')
         return redirect(url_for('frontend.login_view'))  # Adjusted to use the frontend prefix
 
+    # Fetch user's forms (this assumes an API endpoint for fetching\
+    # API endpoint for fetching user's form exists)
+
+    response = requests.get('http://127.0.0.1:5000/api/forms', headers={'Authorization': f'Bearer {session["token"]}'})
+    forms = response.json() if response.status_code == 200 else []
+
+
+
     # Render the dashboard if authenticated
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', forms=forms)
 
