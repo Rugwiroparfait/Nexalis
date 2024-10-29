@@ -91,5 +91,5 @@ def create_form_view():
 
         else:
             flash(response.json().get('error',' Failed to create form'), 'danger')
-        return render_template('create_form.html')
+    return render_template('create_form.html')
 
