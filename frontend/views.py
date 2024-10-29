@@ -67,3 +67,29 @@ def dashboard_view():
     # Render the dashboard if authenticated
     return render_template('dashboard.html', forms=forms)
 
+@bp.route('/create_form', methods=['GET', 'POST'])
+def create_form_view():
+    """Handles form creation with questions."""
+    if 'token' not in session:
+        flash('please log in to access this page.', 'warning')
+        return redirect(url_for('frontend.login_view'))
+
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        questions = request.form.getlist('questions[]')
+
+        # Make a request to the backend API to create the form
+        response = requests.post(
+                'http://127.0.0.1:5000/api/forms',
+                headers={'Authorization': f'Bearer {session["token"]}'},
+                json={'title': title, 'description': description, 'questions': questions}
+                )
+        if response.status_code == 201:
+            flash('Form created successfully!', 'success')
+            return redirect(url_for('frontend.dashboard_view'))
+
+        else:
+            flash(response.json().get('error',' Failed to create form'), 'danger')
+        return render_template('create_form.html')
+

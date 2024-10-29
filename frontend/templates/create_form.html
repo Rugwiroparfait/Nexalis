@@ -1,0 +1,57 @@
+<!-- frontend/templates/create_form.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Create New Form</h2>
+    <form method="POST" action="{{ url_for('frontend.create_form_view') }}">
+        <div class="mb-3">
+            <label for="title" class="form-label">Form Title</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+        </div>
+        
+        <div id="questions-container" class="mb-3">
+            <label class="form-label">Questions</label>
+            <div class="input-group mb-2 question-input">
+                <input type="text" class="form-control" name="questions[]" placeholder="Enter question" required>
+                <button type="button" class="btn btn-danger remove-question">Remove</button>
+            </div>
+        </div>
+        
+        <button type="button" class="btn btn-secondary" id="add-question">Add Question</button>
+        <button type="submit" class="btn btn-primary mt-3">Create Form</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('add-question').addEventListener('click', function () {
+        const container = document.getElementById('questions-container');
+        const questionInput = document.createElement('div');
+        questionInput.classList.add('input-group', 'mb-2', 'question-input');
+        
+        questionInput.innerHTML = `
+            <input type="text" class="form-control" name="questions[]" placeholder="Enter question" required>
+            <button type="button" class="btn btn-danger remove-question">Remove</button>
+        `;
+        
+        container.appendChild(questionInput);
+        
+        // Add event listener for the new remove button
+        questionInput.querySelector('.remove-question').addEventListener('click', function () {
+            questionInput.remove();
+        });
+    });
+
+    // Event delegation for remove buttons
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('remove-question')) {
+            event.target.closest('.question-input').remove();
+        }
+    });
+</script>
+{% endblock %}
+

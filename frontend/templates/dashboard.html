@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <h2 class="text-center">My Dashboard</h2>
     <div class="d-flex justify-content-end">
-        <a href="{{ url_for('frontend.create_form') }}" class="btn btn-primary mb-3">Create New Form</a>
+        <a href="{{ url_for('forms.create_form') }}" class="btn btn-primary mb-3">Create New Form</a>
     </div>
     
     <div class="row">
@@ -17,7 +17,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ form.title }}</h5>
                             <p class="card-text">{{ form.description }}</p>
-                            <a href="{{ url_for('frontend.view_form', form_id=form.id) }}" class="btn btn-secondary">View Form</a>
+                            <a href="{{ url_for('forms.create_form', form_id=form.id) }}" class="btn btn-secondary">View Form</a>
                         </div>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
     </div>
 
     <div class="text-center mt-3">
-        <a href="{{ url_for('frontend.profile') }}">Go to Profile</a>
+        <a href="{{ url_for('frontend.login_view') }}">Go to Profile</a>
     </div>
 </div>
 {% endblock %}
