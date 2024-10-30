@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+import uuid
 
 class Form(db.Model):
     __tablename__ = 'forms'  # Fixed double asterisks
@@ -13,6 +14,8 @@ class Form(db.Model):
 
     # relationship with user
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    # link token
+    link_token = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
 
     def __repr__(self):  # Fixed double asterisks
         return f"<Form {self.title}>"
@@ -27,5 +30,6 @@ class Form(db.Model):
             'title': self.title,
             'description': self.description,
             'created_at': self.created_at.isoformat() if self.created_at else None,
+            'link_token': self.link_token,
             'questions': [question.to_dict() for question in self.questions] if self.questions else []
         }

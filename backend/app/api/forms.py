@@ -49,7 +49,7 @@ def create_form():
     db.session.add(new_form)
     db.session.commit()
     
-    return jsonify({"form": new_form.to_dict()}), 201
+    return jsonify({"form": new_form.to_dict(), "link_token": new_form.link_token}), 201
 
 @bp.route('/<int:id>', methods=['PUT'])
 def update_form(id):
@@ -82,3 +82,15 @@ def delete_form(id):
     db.session.commit()
     
     return jsonify({"message": "Form deleted successfully"})
+
+@bp.route('/link/<string:link_token>', methods=['GET'])
+def get_form_by_link(link_token):
+    """
+    Get a form by its unique link token.
+    ---
+    This endpoint retrieves a form using its unique link token.
+    Response: JSON object containing the form details.
+    """
+    form = Form.query.filter_by(link_token=link_token).first_or_404()
+    return jsonify({"form": form.to_dict()})
+
