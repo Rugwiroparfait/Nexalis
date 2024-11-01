@@ -31,5 +31,5 @@ class Form(db.Model):
             'description': self.description,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'link_token': self.link_token,
-            'questions': [question.to_dict() for question in self.questions] if self.questions else []
+            'questions': [question.to_dict() for question in self.questions]
         }

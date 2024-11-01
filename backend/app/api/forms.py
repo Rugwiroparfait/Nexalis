@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.form import Form
 from app import db
 
-# Fix the Blueprint name syntax
-bp = Blueprint('forms', __name__, url_prefix='/api/forms')  # Changed url_prefix to /api/forms
+
+bp = Blueprint('forms', __name__)
 
 # Add GET all forms route
-@bp.route('/', methods=['GET'])
+@bp.route('/get_form', methods=['GET'])
 def get_forms():
     """
     Get all forms
@@ -18,7 +19,7 @@ def get_forms():
     return jsonify({"forms": [form.to_dict() for form in forms]})
 
 # Add GET single form route
-@bp.route('/<int:id>', methods=['GET'])
+@bp.route('/get_form/<int:id>', methods=['GET'])
 def get_form(id):
     """
     Get a single form
@@ -29,7 +30,8 @@ def get_form(id):
     form = Form.query.get_or_404(id)
     return jsonify({"form": form.to_dict()})
 
-@bp.route('/', methods=['POST'])
+@bp.route('/create_form', methods=['POST'])
+@jwt_required()
 def create_form():
     """
     Create a new form
@@ -44,14 +46,15 @@ def create_form():
     
     if not title:
         return jsonify({"error": "Title is required"}), 400
-    
-    new_form = Form(title=title, description=description)
+    # Get the current user's identity (user_id) from the JWT token
+    user_id = get_jwt_identity()
+    new_form = Form(title=title, description=description, user_id=user_id)
     db.session.add(new_form)
     db.session.commit()
     
     return jsonify({"form": new_form.to_dict(), "link_token": new_form.link_token}), 201
 
-@bp.route('/<int:id>', methods=['PUT'])
+@bp.route('/update_form/<int:id>', methods=['PUT'])
 def update_form(id):
     """
     Update an existing form
@@ -69,7 +72,7 @@ def update_form(id):
     db.session.commit()
     return jsonify({"form": form.to_dict()})
 
-@bp.route('/<int:id>', methods=['DELETE'])
+@bp.route('delete_form/<int:id>', methods=['DELETE'])
 def delete_form(id):
     """
     Delete a form

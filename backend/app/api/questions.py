@@ -2,12 +2,12 @@ from flask import Blueprint, request, jsonify
 from app.models.question import Question
 from app import db
 
-bp = Blueprint('questions', __name__, url_prefix='/questions')
+bp = Blueprint('questions', __name__)
 
-@bp.route('/', methods=['POST'])
+@bp.route('/create_question', methods=['POST'])
 def create_question():
     """
-    Create a new questions
+    Create a new question
     ---
     This endpoint creates a new question for a form.
     Payload: JSON object containing the form ID, question text, and type.
@@ -26,7 +26,7 @@ def create_question():
     db.session.commit()
     return jsonify({"question": new_question.to_dict()}), 201
 
-@bp.route('<int:id>', methods=['DELETE'])
+@bp.route('/delete_question/<int:id>', methods=['DELETE'])
 def delete_quetion(id):
     """
     Delete a question

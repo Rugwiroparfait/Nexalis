@@ -2,9 +2,11 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 
 db = SQLAlchemy()
 migrate = Migrate()
+jwt = JWTManager()
 
 
 def create_app(config_class=Config):
@@ -21,6 +23,7 @@ def create_app(config_class=Config):
     
     # load configurations
     app.config.from_object(config_class)
+    jwt.init_app(app)
     
     # Initialize the database
     db.init_app(app)
@@ -44,10 +47,10 @@ def create_app(config_class=Config):
 
         
         # Register blueprints
-        app.register_blueprint(forms_bp, url_prefix='/api')
-        app.register_blueprint(questions_bp, url_prefix='/api')
-        app.register_blueprint(responses_bp, url_prefix='/api')
-        app.register_blueprint(users_bp, url_prefix='/api')
+        app.register_blueprint(forms_bp, url_prefix='/api/forms')
+        app.register_blueprint(questions_bp, url_prefix='/api/questions')
+        app.register_blueprint(responses_bp, url_prefix='/api/responses')
+        app.register_blueprint(users_bp, url_prefix='/api/users')
 
         # Register frontend blueprint without prefix
         app.register_blueprint(frontend_bp)

@@ -2,9 +2,9 @@ from flask import Blueprint, request, jsonify, current_app
 from app.models.response import Response
 from app import db
 
-bp = Blueprint('responses', __name__, url_prefix='/responses')
+bp = Blueprint('responses', __name__)
 
-@bp.route('/', methods=['POST'])
+@bp.route('/submit_response', methods=['POST'])
 def submit_response():
     """
     Submit a response to a form
@@ -32,7 +32,7 @@ def submit_response():
     return jsonify({"response": new_response.to_dict()}), 201
 
 
-@bp.route('/<int:id>', methods=['GET'])
+@bp.route('/get_response/<int:id>', methods=['GET'])
 def get_response(id):
     """
     Get a form response

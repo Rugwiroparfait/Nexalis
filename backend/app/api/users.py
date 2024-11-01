@@ -40,7 +40,6 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
-
     if not all([email, password]):
         return jsonify({'error':'Missing required fields'}), 400
 
@@ -49,9 +48,9 @@ def login():
     if user and verify_password(user.password_hash, password):
         # generate token
         token = generate_token(user.id)
-        return jsonify({'token': token}), 200
+        return jsonify({'token': token, 'user_id': user.id}), 200
     else:
-        return jsonify({'error':'invalid email or password'}), 401
+        return jsonify({'error':'Invalid email or password'}), 401
 
 @users_bp.route('/user', methods=['GET'])
 def get_user_info():
