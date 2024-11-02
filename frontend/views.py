@@ -83,11 +83,18 @@ def create_form_view():
     }
     print("Form data being sent:", form_data)
 
+    headers =  {
+            'Authorization': f'Bearer {session["token"]}',
+            'Content-Type' : 'application/json'
+            }
+    print("Token used for Authorization:", session.get("token"))
+
     response = requests.post(
         'http://127.0.0.1:5000/api/forms/create_form',
-        headers={'Authorization': f'Bearer {session["token"]}'},
-        json=form_data
+        json=form_data,
+        headers=headers
     )
+
     if response.status_code == 201:
         flash("Form created successfully!", "success")
         return redirect(url_for("frontend.dashboard_view"))

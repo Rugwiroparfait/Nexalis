@@ -31,7 +31,7 @@ def get_form(id):
     return jsonify({"form": form.to_dict()})
 
 @bp.route('/create_form', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def create_form():
     """
     Create a new form
@@ -43,11 +43,12 @@ def create_form():
     data = request.get_json()
     title = data.get('title')
     description = data.get('description')
+    user_id = data.get('user_id')
     
     if not title:
         return jsonify({"error": "Title is required"}), 400
     # Get the current user's identity (user_id) from the JWT token
-    user_id = get_jwt_identity()
+    # user_id = get_jwt_identity()
     new_form = Form(title=title, description=description, user_id=user_id)
     db.session.add(new_form)
     db.session.commit()
