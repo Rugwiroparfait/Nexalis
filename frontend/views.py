@@ -76,30 +76,60 @@ def create_form_view():
     if 'token' not in session:
         flash('Please log in to access this page.', 'warning')
         return redirect(url_for('frontend.login_view'))
-    form_data = {
-        "title": request.form.get("title"),
-        "description": request.form.get("description"),
-        "user_id": session.get("user_id")  # Make sure user_id is stored in the session after login
-    }
-    print("Form data being sent:", form_data)
+    
+    if request.method == 'POST':
+        # Prepare form data
+        form_data = {
+            "title": request.form.get("title"),
+            "description": request.form.get("description"),
+            "user_id": session.get("user_id")  # Make sure user_id is stored in the session after login
+        }
+        print("Form data being sent:", form_data)
 
-    headers =  {
-            'Authorization': f'Bearer {session["token"]}',
-            'Content-Type' : 'application/json'
+        # Collect questions
+        questions = []
+        for i in range(len(request.form.getlist("question_text"))):
+            question_text = request.form.getlist("question_text")[i]
+            question_type = request.form.getlist("question_type")[i]
+            if question_text and question_type:
+                questions.append({
+                    "text": question_text,
+                    "question_question": question_type
+                    })
+
+        # Ading questions to form_data only if they exist
+        if questions:
+            form_data["questions"]= questions
+        # debugging in case LOL (--)
+        print("Questions data being sent:", questions)
+
+        # API request will be like ...
+        headers = {
+                'Authorization': f'Bearer {session["token"]}',
+                'Content-type': 'application/json'
             }
-    print("Token used for Authorization:", session.get("token"))
+        # printing token (debugging purpose)
+        print("Token used for Authorization:", session.get("token"))
 
-    response = requests.post(
-        'http://127.0.0.1:5000/api/forms/create_form',
-        json=form_data,
-        headers=headers
-    )
-
-    if response.status_code == 201:
-        flash("Form created successfully!", "success")
-        return redirect(url_for("frontend.dashboard_view"))
-    else:
-        flash("Failed to create form. Please try again.", "danger")
+        # post a  request to the API
+        response = requests.post(
+                'http://127.0.0.1:5000/api/forms/create_form',
+                json=form_data,
+                headers=headers
+            )
+        # Handle the API response
+        if response.status_code == 201:
+            flash("form created successfully!", "success")
+            return redirect(url_for("frontend.dashboard_view"))
+        elif response.status_code == 401:
+            flash("Unauthorized: Please log in again.", "danger")
+        elif response.status_code == 400:
+            error_message = response.json().get("error","Failed to create form. Missing or invalid data." )
+            flash(f"Error: {error_message}", "danger")
+        elif response.status_code == 422:
+            flash("The server Unable to process the request because it contains invalid data")
+        else:
+            flash("Failed to create form. Please try again.", "danger")
     return render_template("create_form.html")
 
 @bp.route('/response/<int:form_id>', methods=['GET', 'POST'])
