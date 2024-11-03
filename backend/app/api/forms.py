@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.form import Form
+from app.models.question import Question
 from app import db
 
 
@@ -44,6 +45,7 @@ def create_form():
     title = data.get('title')
     description = data.get('description')
     user_id = data.get('user_id')
+    questions_data = data.get('questions', [])
     
     if not title:
         return jsonify({"error": "Title is required"}), 400
@@ -52,7 +54,19 @@ def create_form():
     new_form = Form(title=title, description=description, user_id=user_id)
     db.session.add(new_form)
     db.session.commit()
-    
+    db.session.flush()
+
+    # Add questions if provided
+    questions = []
+    for question_data in questions_data:
+        question_text = question_data.get('text')
+        question_type = question_data.get('text', 'text')
+        if question_text:
+            question = Question(text=question_text,question_type=question_type, form_id=new_form.id)
+            questions.append(question)
+
+    db.session.add_all(questions)
+    db.session.commit()
     return jsonify({"form": new_form.to_dict(), "link_token": new_form.link_token}), 201
 
 @bp.route('/update_form/<int:id>', methods=['PUT'])
