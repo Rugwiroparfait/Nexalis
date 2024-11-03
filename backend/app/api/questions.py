@@ -40,3 +40,19 @@ def delete_quetion(id):
     db.session.commit()
 
     return jsonify({"message":"Question delete successfully"})
+
+@bp.route('/<int:form_id>/questions', methods=['GET'])
+def get_form_questions(form_id):
+    """
+    Get all questions for a specific form
+    ---
+    This endpoint retrieves all questions associated with a form.
+    Response: JSON object with the list of questions.
+    """
+    questions = Question.query.filter_by(form_id=form_id).all()
+    questions_data = [question.to_dict() for question in questions]  # Assuming Question has a `to_dict` method
+
+    if not questions_data:
+        return jsonify({"error": "No questions found for this form"}), 404
+
+    return jsonify({"questions": questions_data}), 200

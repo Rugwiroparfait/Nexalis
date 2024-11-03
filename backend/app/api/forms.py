@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.form import Form
 from app.models.question import Question
 from app import db
+from datetime import datetime
 
 
 bp = Blueprint('forms', __name__)
@@ -111,4 +112,20 @@ def get_form_by_link(link_token):
     """
     form = Form.query.filter_by(link_token=link_token).first_or_404()
     return jsonify({"form": form.to_dict()})
+
+
+@bp.route('/list_forms', methods=['GET'])
+def list_forms():
+    """
+    List all forms with details for testing purposes.
+    ---
+    This endpoint retrieves all forms along with their details,
+    including the form ID, so they can be tested in Postman.
+    """
+    forms = Form.query.all()
+    #form_data = [form.to_dict() for form in forms]
+    forms = Form.query.options(db.joinedload(Form.questions)).all()
+    return jsonify({
+        "forms": [form.to_dict(include_questions=True) for form in forms]
+        })
 

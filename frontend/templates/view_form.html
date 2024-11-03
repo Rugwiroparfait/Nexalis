@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}View Form - {{ form.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">{{ form.title }}</h2>
+    <p class="text-muted text-center">{{ form.description }}</p>
+    
+    <!-- Display questions in the form -->
+    <form method="POST" action="{{ url_for('frontend.submit_response', form_id=form.id) }}">
+        <div class="form-group">
+            {% for question in form.questions %}
+                <div class="mb-3">
+                    <label class="form-label">{{ question.text }}</label>
+                    
+                    {% if question.question_type == 'text' %}
+                        <input type="text" class="form-control" name="responses[{{ question.id }}]" placeholder="Your answer">
+                    {% elif question.question_type == 'multiple_choice' %}
+                        {% for option in question.options %}
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" name="responses[{{ question.id }}]" value="{{ option }}" id="option-{{ question.id }}-{{ loop.index }}">
+                                <label class="form-check-label" for="option-{{ question.id }}-{{ loop.index }}">{{ option }}</label>
+                            </div>
+                        {% endfor %}
+                    {% elif question.question_type == 'checkbox' %}
+                        {% for option in question.options %}
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="responses[{{ question.id }}][]" value="{{ option }}" id="option-{{ question.id }}-{{ loop.index }}">
+                                <label class="form-check-label" for="option-{{ question.id }}-{{ loop.index }}">{{ option }}</label>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Submit Response</button>
+    </form>
+</div>
+{% endblock %}
+

@@ -67,7 +67,11 @@ def dashboard_view():
         'http://127.0.0.1:5000/api/forms/get_form',
         headers={'Authorization': f'Bearer {session["token"]}'}
     )
-    forms = response.json() if response.status_code == 200 else []
+    if response.status_code == 200:
+        forms = response.json().get('forms', [])
+    else:
+        forms = []
+        flash("Failed to retrieve forms. Please try again later.", "danger")
     return render_template('dashboard.html', forms=forms)
 
 @bp.route('/create_form', methods=['GET', 'POST'])
@@ -82,7 +86,7 @@ def create_form_view():
         form_data = {
             "title": request.form.get("title"),
             "description": request.form.get("description"),
-            "user_id": session.get("user_id")  # Make sure user_id is stored in the session after login
+            "user_id": session.get("user_id")
         }
         print("Form data being sent:", form_data)
 
@@ -162,3 +166,62 @@ def response_view(form_id):
             flash("Failed to submit response.", "danger")
         return redirect(url_for('frontend.dashboard_view'))
 
+@bp.route('/views_form/<int:form_id>', methods=['GET'])
+def view_form(form_id):
+    """View form: Displays a specific form with its questions."""
+    if 'token' not in session:
+        flash('Please log in to access this page.', 'warning')
+        return redirect(url_for('frontend.login_view'))
+
+    # Request to get form details
+    form_response = requests.get(
+        f'http://127.0.0.1:5000/api/forms/get_form/{form_id}',
+        headers={'Authorization': f'Bearer {session["token"]}'}
+    )
+    
+    if form_response.status_code == 200:
+        form_data = form_response.json().get('form', {})
+    else:
+        flash("Failed to load form. Please try again later", "danger")
+        return redirect(url_for('frontend.dashboard_view'))
+
+    # Request to get associated questions for the form
+    questions_response = requests.get(
+        f'http://127.0.0.1:5000/api/questions/{form_id}/questions',
+        headers={'Authorization': f'Bearer {session["token"]}'}
+    )
+
+    if questions_response.status_code == 200:
+        questions_data = questions_response.json().get('questions', [])
+    else:
+        flash("Failed to load questions. Please try again later", "danger")
+        return redirect(url_for('frontend.dashboard_view'))
+
+    # Render the form with its associated questions
+    return render_template('view_form.html', form=form_data, questions=questions_data)
+
+
+
+@bp.route('/submit_response/<int:form_id>', methods=['POST'])
+def submit_response(form_id):
+    """Submit responses to a form."""
+    if 'token' not in session:
+        flash('Please log in to submit your response.', 'warning')
+        return redirect(url_for('frontend.login_view'))
+    
+    responses = request.form.getlist('responses')
+    response_data = {
+            'form_id': form_id,
+            'responses': responses
+            }
+    response = requests.post(
+            f'http://127.0.0.1:5000/api/responses',
+            json=response_data,
+            headers={'Authorization': f'Bearer {session["token"]}'}
+            )
+
+    if response.status_code == 201:
+        flash('Your response has been submitted successfully.', 'success')
+    else:
+        flash('Failed to submit response. Please try again later.', 'danger')
+    return redirect(url_for('frontend.dashboard_view'))

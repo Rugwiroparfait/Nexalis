@@ -17,7 +17,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ form.title }}</h5>
                             <p class="card-text">{{ form.description }}</p>
-                            <a href="{{ url_for('forms.create_form', form_id=form.id) }}" class="btn btn-secondary">View Form</a>
+                            <a href="{{ url_for('frontend.view_form', form_id=form.id) }}" class="btn btn-secondary">View Form</a>
                         </div>
                     </div>
                 </div>
