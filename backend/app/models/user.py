@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -14,15 +15,38 @@ class User(db.Model):
     def __repr__(self):
         return f"<User {self.username}>"
 
-    def to_dict(self):
+    def set_password(self, password):
+        """Hashes the password and stores it in password_hash."""
+        self.password_hash = generate_password_hash(password)
+
+    # Property for setting password: hashes it automatically
+    @property
+    def password(self):
+        raise AttributeError("Password is not a readable attribute.")
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    # Method to check if a password matches the stored hash
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def to_dict(self, include_forms=False):
         """
         Convert the user object to dictionary.
-        Returns: Dictionary containing user data
+        Args:
+            include_forms (bool): Whether to include user's forms in the output
+        Returns:
+            dict: Dictionary containing user data
         """
-        return {
+        data = {
             'id': self.id,
             'username': self.username,
             'email': self.email,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'forms': [form.to_dict() for form in self.forms] if self.forms else []
-            }
+        }
+        if include_forms:
+            data['forms'] = [form.to_dict() for form in self.forms]
+        return data
+
