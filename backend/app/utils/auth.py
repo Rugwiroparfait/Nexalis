@@ -3,6 +3,8 @@ import jwt
 from datetime import datetime, timedelta
 from app import create_app
 from flask import current_app
+from  functools import wraps
+from app.models.user import User
 
 SECRET_KEY = current_app.config['SECRET_KEY']
 
@@ -33,3 +35,26 @@ def decode_token(token):
     except jwt.ExpiredSignatureError:
         return None
 
+def token_required(f):
+    """Decorator to check if the user has a valid JWT token."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+
+        if not token:
+            return jsonify({'error': 'Token is missing!'}), 403
+
+        token = token.replace("Bearer", "")
+
+        try:
+            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            current_user = User.query.get(data['user_id'])
+            if current_user is None:
+                return jsonify({'error': 'User not found!'}), 404
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token has expired!'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token!'}), 401
+
+        return f(current_user,*args, **kwargs)
+    return decorated
