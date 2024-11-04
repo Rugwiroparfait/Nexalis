@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify
 from app.models.user import User
 from app import db
-from app.utils.auth import hash_password, verify_password, generate_token, decode_token
+from app.utils.auth import hash_password, verify_password, generate_token, decode_token, token_required
 from datetime import datetime
-
 
 users_bp = Blueprint('users', __name__)
 
@@ -22,16 +21,16 @@ def signup():
     if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
         return jsonify({'error': 'User already exists'}), 409
 
-    #  Create a new user
+    # Create a new user
     new_user = User(
-            username=username,
-            email=email,
-            password_hash=hash_password(password),
-            created_at=datetime.utcnow()
-            )
+        username=username,
+        email=email,
+        password_hash=hash_password(password),
+        created_at=datetime.utcnow()
+    )
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({'message': 'User created successfully'}),201
+    return jsonify({'message': 'User created successfully'}), 201
 
 @users_bp.route('/login', methods=['POST'])
 def login():
@@ -41,33 +40,40 @@ def login():
     password = data.get('password')
 
     if not all([email, password]):
-        return jsonify({'error':'Missing required fields'}), 400
+        return jsonify({'error': 'Missing required fields'}), 400
 
     user = User.query.filter_by(email=email).first()
-
-    if user and verify_password(user.password_hash, password):
-        # generate token
-        token = generate_token(user.id)
-        return jsonify({'token': token, 'user_id': user.id}), 200
-    else:
-        return jsonify({'error':'Invalid email or password'}), 401
+    if user and user.check_password(password):
+        access_token = create_access_token(identity=user.id)  # Setting `sub` as `user.id`
+        return jsonify(access_token=access_token), 200
+    return jsonify({"msg": "Invalid credentials"}), 401
 
 @users_bp.route('/user', methods=['GET'])
-def get_user_info():
+@token_required
+def get_user_info(current_user):
     """Get user details API."""
-    token = request.headers.get('Authorization')
+    return jsonify(current_user.to_dict()), 200
 
-    if not token:
-        return jsonify({'error':'Token is missing'}), 403
+@users_bp.route('/profile', methods=['GET'])
+@token_required
+def get_profile(current_user):
+    """Retrieve user profile information."""
+    return jsonify({
+        'name': current_user.username,
+        'email': current_user.email
+    }), 200
 
-    user_id = decode_token(token)
+@users_bp.route('/update', methods=['PUT'])
+@token_required
+def update_profile(current_user):
+    """Update user profile information."""
+    data = request.get_json()
+    current_user.username = data.get('username', current_user.username)
+    current_user.email = data.get('email', current_user.email)
 
-    if not user_id:
-        return jsonify({'error': 'Invalid or expired token'}), 403
+    if 'password' in data and data['password']:
+        current_user.password_hash = hash_password(data['password'])
 
-    user = User.query.get(user_id)
+    db.session.commit()
+    return jsonify({'message': 'Profile updated successfully!'}), 200
 
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-
-    return jsonify(user.to_dict()), 200

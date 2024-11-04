@@ -53,6 +53,6 @@ def get_form_questions(form_id):
     questions_data = [question.to_dict() for question in questions]  # Assuming Question has a `to_dict` method
 
     if not questions_data:
-        return jsonify({"error": "No questions found for this form"}), 404
+        return jsonify({"error": "No questions found for this form"}), 200
 
     return jsonify({"questions": questions_data}), 200

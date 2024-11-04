@@ -2,7 +2,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from datetime import datetime, timedelta
 from app import create_app
-from flask import current_app
+from flask import current_app, request
 from  functools import wraps
 from app.models.user import User
 
