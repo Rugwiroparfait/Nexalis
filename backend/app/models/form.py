@@ -20,16 +20,18 @@ class Form(db.Model):
     def __repr__(self):  # Fixed double asterisks
         return f"<Form {self.title}>"
     
-    def to_dict(self):
+    def to_dict(self, include_questions=False):
         """
         Convert the form object to a dictionary.
         Returns: Dictionary containing form data
         """
-        return {
-            'id': self.id,
-            'title': self.title,
-            'description': self.description,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'link_token': self.link_token,
-            'questions': [question.to_dict() for question in self.questions]
-        }
+        form_dict = {
+                'id': self.id,
+                'title': self.title,
+                'description': self.description,
+                'created_at': self.created_at.isoformat() if self.created_at else None,
+                'link_token': self.link_token
+                }
+        if include_questions:
+            form_dict["questions"] = [question.to_dict() for question in self.questions]
+        return form_dict
