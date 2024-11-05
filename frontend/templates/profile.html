@@ -1,0 +1,27 @@
+<!-- frontend/templates/profile.html -->
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">User Profile</h2>
+    <form method="POST" action="{{ url_for('frontend.profile_view') }}">
+        <div class="form-group mb-3">
+            <label for="name">Name:</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="password">Password:</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Enter new password">
+            <small class="text-muted">Leave blank to keep current password.</small>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Update Profile</button>
+    </form>
+</div>
+{% endblock %}
+
