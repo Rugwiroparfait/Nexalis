@@ -39,7 +39,7 @@ def submit_response():
         # Ensure the question belongs to the specified form
         question = Question.query.filter_by(id=question_id, form_id=form_id).first()
         if not question:
-            return jsonify({"error": f"Question ID {question_id} not found in form {form_id}"}), 404
+            return jsonify({"error": f"Question with ID {question_id} does not exist in form {form_id}"}), 404
 
         # Create a new Response instance
         new_response = Response(form_id=form_id, question_id=question_id, answers=answer_text)
@@ -62,7 +62,11 @@ def get_response(id):
     This endpoint retrieves a specific response by its ID.
     Response: JSON object with the response details.
     """
-    response = Response.query.get_or_404(id)
+    response = Response.query.get(id)
+
+    # Provide a meaningful message if the response is not found
+    if not response:
+        return jsonify({"error": f"Response with ID {id} not found"}), 404
 
     return jsonify({"response": response.to_dict()}), 200
 
