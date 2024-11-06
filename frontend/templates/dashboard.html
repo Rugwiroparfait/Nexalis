@@ -5,31 +5,68 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="text-center">My Dashboard</h2>
-    <div class="d-flex justify-content-end">
-        <a href="{{ url_for('frontend.create_form_view') }}" class="btn btn-primary mb-3">Create New Form</a>
-    </div>
-    
-    <div class="row">
-        {% if forms %}
-            {% for form in forms %}
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ form.title }}</h5>
-                            <p class="card-text">{{ form.description }}</p>
-                            <a href="{{ url_for('frontend.view_form', form_id=form.id) }}" class="btn btn-secondary">View Form</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-center">You haven't created any forms yet.</p>
-        {% endif %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5>Welcome, {{ user.username }}!</h5>
+            <p class="text-muted">Here is an overview of your forms and activities.</p>
+        </div>
+        <a href="{{ url_for('frontend.create_form_view') }}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Create New Form
+        </a>
     </div>
 
-    <div class="text-center mt-3">
-        <a href="{{ url_for('frontend.profile_view') }}">Go to Profile</a>
+    {% if forms %}
+        <div class="row">
+            <div class="col-md-12 mb-4">
+                <h5 class="text-muted">Your Forms</h5>
+                <div class="row">
+                    {% for form in forms %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ form.title }}</h5>
+                                    <p class="card-text text-truncate">{{ form.description }}</p>
+                                    <div class="d-flex justify-content-between">
+                                        <a href="{{ url_for('frontend.view_form', form_id=form.id) }}" 
+                                           class="btn btn-outline-secondary btn-sm" 
+                                           data-toggle="tooltip" title="View Form Details">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        <a href="{{ url_for('frontend.edit_form', form_id=form.id) }}" 
+                                           class="btn btn-outline-primary btn-sm" 
+                                           data-toggle="tooltip" title="Edit Form">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="{{ url_for('frontend.view_all_responses', form_id=form.id) }}" 
+                                           class="btn btn-outline-info btn-sm" 
+                                           data-toggle="tooltip" title="View Responses">
+                                            <i class="fas fa-list"></i> Responses
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-muted text-right">
+                                    Created on {{ form.creation_date.strftime('%B %d, %Y') }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center" role="alert">
+            <strong>No forms found!</strong> You haven't created any forms yet.
+            <a href="{{ url_for('frontend.create_form_view') }}" class="alert-link">Create one now</a>.
+        </div>
+    {% endif %}
+
+    <!-- Profile and Navigation Links -->
+    <div class="text-center mt-5">
+        <a href="{{ url_for('frontend.profile_view') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-user"></i> Go to Profile
+        </a>
     </div>
 </div>
+
 {% endblock %}
 
