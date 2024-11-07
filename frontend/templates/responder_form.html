@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ form.title }} - Respond to Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>{{ form.title }}</h1>
+    <p>{{ form.description }}</p>
+    
+    <form action="{{ url_for('frontend.responder_view', link_token=form.link_token) }}" method="POST">
+        {% if form.questions %}
+            <div class="questions">
+                {% for question in form.questions %}
+                    <div class="question">
+                        <label for="question_{{ question.id }}">
+                            {{ question.text }}
+                        </label>
+                        <input type="hidden" name="question_id" value="{{ question.id }}">
+                        
+                        <!-- Input types based on question type -->
+                        {% if question.type == 'text' %}
+                            <input type="text" name="answer" id="question_{{ question.id }}" class="form-control" required>
+                        {% elif question.type == 'textarea' %}
+                            <textarea name="answer" id="question_{{ question.id }}" class="form-control" rows="3" required></textarea>
+                        {% elif question.type == 'multiple_choice' %}
+                            {% for option in question.options %}
+                                <div class="form-check">
+                                    <input type="radio" name="answer" id="option_{{ option.id }}" value="{{ option.text }}" required>
+                                    <label for="option_{{ option.id }}">{{ option.text }}</label>
+                                </div>
+                            {% endfor %}
+                        {% elif question.type == 'checkbox' %}
+                            {% for option in question.options %}
+                                <div class="form-check">
+                                    <input type="checkbox" name="answer" id="option_{{ option.id }}" value="{{ option.text }}">
+                                    <label for="option_{{ option.id }}">{{ option.text }}</label>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No questions available for this form.</p>
+        {% endif %}
+        
+        <button type="submit" class="btn btn-primary">Submit Response</button>
+    </form>
+</div>
+
+</body>
+</html>

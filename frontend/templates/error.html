@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Error - Nexalis{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Access Denied</h2>
+    <p class="text-center">{{ message }}</p>
+    <div class="text-center">
+        <a href="{{ url_for('frontend.view_all_forms') }}" class="btn btn-primary">Back to Forms</a>
+    </div>
+</div>
+{% endblock %}

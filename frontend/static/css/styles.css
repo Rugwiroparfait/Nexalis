@@ -1,0 +1,26 @@
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+.question-section {
+    margin-bottom: 20px;
+}
+
+.responses-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.responses-list li {
+    padding: 5px;
+    background-color: #f0f0f0;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+.no-responses {
+    color: #999;
+    font-style: italic;
+}

@@ -34,8 +34,17 @@
         {% endfor %}
     </div>
 
-    <!-- Button to view responses -->
-    <a href="{{ url_for('frontend.view_responses', form_id=form.id) }}" class="btn btn-primary mt-3">See Responses</a>
+    <!-- Buttons to view responses and share link -->
+    <div class="d-flex justify-content-between mt-4">
+        <!-- Button to view responses -->
+        <a href="{{ url_for('frontend.view_responses', form_id=form.id) }}" class="btn btn-primary">See Responses</a>
+
+        <!-- Button to get shareable link if link_token is available -->
+        {% if form.link_token %}
+            <a href="{{ url_for('frontend.share_link_view', link_token=form.link_token) }}" class="btn btn-secondary">Get Shareable Link</a>
+        {% else %}
+            <p class="text-danger">No shareable link available.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
-
