@@ -281,31 +281,42 @@ def view_all_forms():
 
 
 
-
-@bp.route('/form/<int:form_id>', methods=['GET'])
+@bp.route('/form/<int:form_id>', methods=['GET', 'POST'])
 @login_required
 def view_form(form_id):
-    """View a single form identified by form_id, only if created by the logged-in user."""
+    """View a single form with questions, allowing delete and update of questions."""
     user_id = session.get('user_id')
     token = session.get('token')
+    headers = {'Authorization': f'Bearer {token}', 'Content-type': 'application/json'}
 
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-type': 'application/json'
-    }
-
+    # Fetch form details
     form_response = requests.get(
         f'http://127.0.0.1:5000/api/forms/get_forms/{form_id}',
         headers=headers
     )
-
     if form_response.status_code == 200:
         form = form_response.json().get('form', {})
     else:
-        flash("Failed to retrieve form details or you do not have permission to view it.", "danger")
-        return render_template("error.html", message="You do not have permission to view this form.")
+        form = None
+        flash("Failed to retrieve form details.", "danger")
+    
+    # Debugging output to check form data
+    print("Form data:", form)  # Debugging statement
 
-    return render_template("view_form.html", form=form)
+    # Fetch questions for the form
+    questions_response = requests.get(
+        f'http://127.0.0.1:5000/api/questions/{form_id}/questions',
+        headers=headers
+    )
+    if questions_response.status_code == 200:
+        questions = questions_response.json().get('questions', [])
+    else:
+        questions = []
+        flash("Failed to retrieve questions for this form.", "danger")
+
+    return render_template("view_form.html", form=form, questions=questions)
+
+
 
 @bp.route('/share/<string:link_token>', methods=['GET'])
 def share_link_view(link_token):
@@ -407,3 +418,72 @@ def view_responses(form_id):
     
     # Render the responses in a template (view_responses.html)
     return render_template("view_responses.html", form_id=form_id, responses=responses)
+
+@bp.route('/delete_question/<int:id>/<int:form_id>', methods=['POST'])
+@login_required
+def delete_question(id, form_id):
+    """Delete a question with the given ID."""
+    token = session.get('token')
+    headers = {'Authorization': f'Bearer {token}', 'Content-type': 'application/json'}
+    
+    response = requests.delete(
+        f'http://127.0.0.1:5000/api/questions/delete_question/{id}',
+        headers=headers
+    )
+    
+    if response.status_code == 200:
+        flash("Question deleted successfully.", "success")
+    else:
+        flash("Failed to delete question.", "danger")
+    print(f"Question ID: {id}, Form ID: {form_id}")
+    # Redirect back to the form view page
+    return redirect(url_for('frontend.view_form', form_id=form_id))
+
+
+
+@bp.route('/update_question/<int:id>', methods=['GET', 'POST'])
+@login_required
+def update_question(id):
+    """Update a question with the given ID."""
+    token = session.get('token')
+    headers = {'Authorization': f'Bearer {token}', 'Content-type': 'application/json'}
+    
+    if request.method == 'POST':
+        question_text = request.form.get('question_text')
+        question_type = request.form.get('question_type')
+        options = request.form.getlist('options')
+        
+        data = {
+            'text': question_text,
+            'question_type': question_type,
+            'options': options
+        }
+        
+        response = requests.put(
+            f'http://127.0.0.1:5000/api/forms/update_question/{id}',
+            json=data,
+            headers=headers
+        )
+        
+        if response.status_code == 200:
+            flash("Question updated successfully.", "success")
+        else:
+            flash("Failed to update question.", "danger")
+        
+        # Redirect to the form view page after update
+        form_id = request.args.get('form_id')
+        return redirect(url_for('frontend.view_form', form_id=form_id))
+    
+    # GET request: Fetch question details for pre-filling in the update form
+    question_response = requests.get(
+        f'http://127.0.0.1:5000/api/forms/get_question/{id}',
+        headers=headers
+    )
+    
+    if question_response.status_code == 200:
+        question = question_response.json().get('question', {})
+    else:
+        question = {}
+        flash("Failed to retrieve question details.", "danger")
+    
+    return render_template("update_question.html", question=question)

@@ -1,50 +1,52 @@
 {% extends "base.html" %}
 
-{% block title %}View Form - {{ form.title }}{% endblock %}
+{% block title %}View Form - {{ form.title if form else "Form Not Found" }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="text-center">{{ form.title }}</h2>
-    <p class="text-muted text-center">{{ form.description }}</p>
-    
-    <!-- Display questions in the form -->
-    <div class="form-group">
-        {% for question in form.questions %}
-            <div class="mb-3">
-                <label class="form-label">{{ question.text }}</label>
-                
-                {% if question.question_type == 'text' %}
-                    <input type="text" class="form-control" placeholder="Sample answer" disabled>
-                {% elif question.question_type == 'multiple_choice' %}
-                    {% for option in question.options %}
-                        <div class="form-check">
-                            <input type="radio" class="form-check-input" disabled>
-                            <label class="form-check-label">{{ option }}</label>
-                        </div>
-                    {% endfor %}
-                {% elif question.question_type == 'checkbox' %}
-                    {% for option in question.options %}
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" disabled>
-                            <label class="form-check-label">{{ option }}</label>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        {% endfor %}
-    </div>
+    {% if form %}
+        <h2 class="text-center">{{ form.title }}</h2>
+        <p class="text-muted text-center">{{ form.description }}</p>
 
-    <!-- Buttons to view responses and share link -->
-    <div class="d-flex justify-content-between mt-4">
+        <!-- Display questions in the form with delete/update options -->
+        <div class="form-group">
+            {% for question in questions %}
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <label class="form-label">{{ question.text }}</label>
+                        {% if question.question_type == 'multiple_choice' %}
+                            {% for option in question.options %}
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" disabled>
+                                    <label class="form-check-label">{{ option }}</label>
+                                </div>
+                            {% endfor %}
+                        {% elif question.question_type == 'checkbox' %}
+                            {% for option in question.options %}
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" disabled>
+                                    <label class="form-check-label">{{ option }}</label>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <!-- Delete Question Button -->
+                    <form action="{{ url_for('frontend.delete_question', id=question.id, form_id=form.id) }}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                    <!-- Update Question Button -->
+                    <a href="{{ url_for('frontend.update_question', id=question.id) }}" class="btn btn-warning btn-sm">Update</a>
+                </div>
+            {% endfor %}
+        </div>
+
         <!-- Button to view responses -->
-        <a href="{{ url_for('frontend.view_responses', form_id=form.id) }}" class="btn btn-primary">See Responses</a>
-
-        <!-- Button to get shareable link if link_token is available -->
-        {% if form.link_token %}
-            <a href="{{ url_for('frontend.share_link_view', link_token=form.link_token) }}" class="btn btn-secondary">Get Shareable Link</a>
-        {% else %}
-            <p class="text-danger">No shareable link available.</p>
-        {% endif %}
-    </div>
+        <a href="{{ url_for('frontend.view_responses', form_id=form.id) }}" class="btn btn-primary mt-3">See Responses</a>
+        <a href="{{ url_for('frontend.share_link_view', form_id=form.id, link_token=form.link_token) }}" class="btn btn-info mt-3">Share Link</a>
+    {% else %}
+        <div class="alert alert-danger">
+            Form not found or you don't have permission to view this form.
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
