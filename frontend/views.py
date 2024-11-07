@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import requests
 from functools import wraps
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 
 bp = Blueprint('frontend', __name__, template_folder='templates', url_prefix='/app')
-
+csrf = CSRFProtect()
 
 def login_required(f):
     @wraps(f)
@@ -35,6 +36,7 @@ def signup_view():
     return render_template('signup.html')
 
 @bp.route('/login', methods=['GET', 'POST'])
+@csrf.exempt
 def login_view():
     if request.method == 'POST':
         data = {
@@ -99,7 +101,6 @@ def create_form_view():
     """Form creation view: Allows users to create forms with questions."""
     token = session.get('token')
     user_id = session.get('user_id')
-    
     # Debug prints
     print(f"Session token: {token}")
     print(f"Session user_id: {user_id}")
@@ -314,7 +315,9 @@ def view_form(form_id):
         questions = []
         flash("Failed to retrieve questions for this form.", "danger")
 
-    return render_template("view_form.html", form=form, questions=questions)
+    csrf_token = generate_csrf()
+
+    return render_template("view_form.html", form=form, questions=questions, csrf_token=csrf_token)
 
 
 
@@ -419,25 +422,44 @@ def view_responses(form_id):
     # Render the responses in a template (view_responses.html)
     return render_template("view_responses.html", form_id=form_id, responses=responses)
 
-@bp.route('/delete_question/<int:id>/<int:form_id>', methods=['POST'])
+@bp.route('/delete_question/<int:id>/<int:form_id>', methods=['DELETE'])
 @login_required
 def delete_question(id, form_id):
-    """Delete a question with the given ID."""
+    """
+    Delete a question with the given ID by calling the API.
+    Redirects back to the form view page with a success or failure message.
+    """
     token = session.get('token')
-    headers = {'Authorization': f'Bearer {token}', 'Content-type': 'application/json'}
+    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
     
-    response = requests.delete(
-        f'http://127.0.0.1:5000/api/questions/delete_question/{id}',
-        headers=headers
-    )
+    try:
+        # Send DELETE request to the API
+        response = requests.delete(
+            f'http://127.0.0.1:5000/api/questions/delete_question/{id}',
+            headers=headers
+        )
+        
+        # Check response status
+        if response.status_code == 200:
+            flash("Question deleted successfully.", "success")
+        else:
+            # Extract error message from the API response if available
+            error_message = response.json().get("error", "Failed to delete question.")
+            flash(f"Error: {error_message}", "danger")
+        
+        # Log response content for debugging
+        print(f"API Response: {response.status_code} - {response.json()}")
+
+    except requests.exceptions.RequestException as e:
+        # Handle request exceptions and display message
+        flash("An error occurred while connecting to the server.", "danger")
+        print(f"RequestException: {e}")
     
-    if response.status_code == 200:
-        flash("Question deleted successfully.", "success")
-    else:
-        flash("Failed to delete question.", "danger")
     print(f"Question ID: {id}, Form ID: {form_id}")
+    
     # Redirect back to the form view page
     return redirect(url_for('frontend.view_form', form_id=form_id))
+
 
 
 

@@ -31,9 +31,7 @@
                         {% endif %}
                     </div>
                     <!-- Delete Question Button -->
-                    <form action="{{ url_for('frontend.delete_question', id=question.id, form_id=form.id) }}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
+                    <button onclick="deleteQuestion({{ question.id }}, {{ form.id }})" class="btn btn-danger btn-sm">Delete</button>
                     <!-- Update Question Button -->
                     <a href="{{ url_for('frontend.update_question', id=question.id) }}" class="btn btn-warning btn-sm">Update</a>
                 </div>
@@ -49,4 +47,31 @@
         </div>
     {% endif %}
 </div>
+
+<!-- JavaScript function to delete a question -->
+<script>
+function deleteQuestion(questionId, formId) {
+    fetch(`/app/delete_question/${questionId}/${formId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'  <!-- Corrected here -->
+        },
+        credentials: 'include' // Ensures session cookies are sent with the request
+    })
+    .then(response => {
+        if (response.ok) {
+            // Redirect to form view or reload the page to see changes
+            window.location.href = `/app/form/${formId}`;
+        } else {
+            // Alert the user if deletion failed
+            alert("Failed to delete question.");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+</script>
 {% endblock %}
+
