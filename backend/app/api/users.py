@@ -56,11 +56,17 @@ def login():
     if user:
         print(f"Login - Password Hash in DB: {user.password_hash}")
         print(f"Login - Password Entered: {password}")
+
         if user.check_password(password):
             access_token = create_access_token(identity=user.id)
-            return jsonify(access_token=access_token), 200
+            return jsonify({
+                'token': access_token,
+                'user_id': user.id,
+                'message': 'Login successful'
+            }), 200
         else:
-            print("Password verification failed.") 
+            print("Password verification failed.")
+
     return jsonify({"error": "Invalid credentials"}), 401
 
 @users_bp.route('/user', methods=['GET'])

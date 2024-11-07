@@ -7,7 +7,7 @@ from datetime import datetime
 
 bp = Blueprint('forms', __name__)
 
-@bp.route('/forms', methods=['GET'])
+@bp.route('/get_form', methods=['GET'])
 @jwt_required()
 def get_forms():
     """
@@ -39,7 +39,7 @@ def get_form(id):
         "form": form.to_dict()
     }), 200
 
-@bp.route('/forms', methods=['POST'])
+@bp.route('/create_form', methods=['POST'])
 @jwt_required()
 def create_form():
     """
@@ -47,14 +47,23 @@ def create_form():
     """
     try:
         data = request.get_json()
+        
+        if not data:
+            return jsonify({"status":"error", "message": "No data is provided"}), 400
         title = data.get('title')
         description = data.get('description')
         questions_data = data.get('questions', [])
 
         if not title:
             return jsonify({"status": "error", "message": "Title is required"}), 400
+        
+        if not isinstance(questions_data, list):
+            return jsonify({"status": "error", "message": "Questions must be a list"}), 400
 
         user_id = get_jwt_identity()
+        if not user_id:
+            return jsonify({"status": "error", "message": "User not found"}), 404
+        
         new_form = Form(title=title, description=description, user_id=user_id)
         db.session.add(new_form)
         db.session.flush()
@@ -62,22 +71,37 @@ def create_form():
         # Add questions if provided
         questions = []
         for question_data in questions_data:
+            # Validate question format
             question_text = question_data.get('text')
-            question_type = question_data.get('type', 'text')
-            if question_text:
-                question = Question(text=question_text, question_type=question_type, form_id=new_form.id)
-                questions.append(question)
+            question_type = question_data.get('type', 'text')  # Default to 'text' if type is not provided
+            
+            if not question_text:
+                return jsonify({"status": "error", "message": "Each question must have text"}), 400
+            
+            # Ensure question_type is a valid value if your app has specific types
+            if question_type not in ['text', 'multiple_choice', 'checkbox']:
+                return jsonify({"status": "error", "message": f"Invalid question type '{question_type}'"}), 400
 
+            # Create the question object
+            question = Question(text=question_text, question_type=question_type, form_id=new_form.id)
+            questions.append(question)
+
+        # Add questions to the session and commit all changes
         db.session.add_all(questions)
         db.session.commit()
+
+        # Return the success response
         return jsonify({
             "status": "success",
             "form": new_form.to_dict(),
             "link_token": new_form.link_token
         }), 201
+
     except Exception as e:
+        # Roll back the session in case of any exception
         db.session.rollback()
-        return jsonify({"status": "error", "message": "Failed to create form"}), 500
+        print(f"Error creating form: {e}")  # For debugging purposes
+        return jsonify({"status": "error", "message": "Failed to create form due to an unexpected error"}), 500
 
 @bp.route('/update_forms/<int:id>', methods=['PUT'])
 @jwt_required()
