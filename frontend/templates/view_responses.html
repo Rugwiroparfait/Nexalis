@@ -1,41 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Responses - {{ form.title }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
 
-<div class="container">
-    <h1>Responses for "{{ form.title }}"</h1>
-    <p>{{ form.description }}</p>
+{% block title %}Responses for {{ form['title'] }}{% endblock %}
 
-    {% if responses %}
-        <div class="responses-section">
-            {% for question in form.questions %}
-                <div class="question-section">
-                    <h3>{{ question.text }}</h3>
-                    
-                    {% set question_responses = responses | selectattr("question_id", "equalto", question.id) %}
-                    
-                    {% if question_responses | list %}
-                        <ul class="responses-list">
-                            {% for response in question_responses %}
-                                <li>{{ response.answer }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="no-responses">No responses yet for this question.</p>
-                    {% endif %}
-                </div>
+{% block content %}
+<div class="container mt-5">
+    <h2>Responses for {{ form['title'] }}</h2>
+
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>Submission Date</th>
+                {% for question in questions %}
+                    <th>{{ question }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for response in responses %}
+            <tr>
+                <td>{{ response['Submission Date'] }}</td>
+                {% for question in questions %}
+                    <td>{{ response.get(question, "N/A") }}</td>
+                {% endfor %}
+            </tr>
             {% endfor %}
-        </div>
-    {% else %}
-        <p class="no-responses">No responses have been submitted for this form.</p>
-    {% endif %}
-</div>
+        </tbody>
+    </table>
 
-</body>
-</html>
+    <a href="{{ url_for('frontend.export_responses_csv', form_id=form['id']) }}" class="btn btn-primary mt-3">Download CSV</a>
+</div>
+{% endblock %}
+

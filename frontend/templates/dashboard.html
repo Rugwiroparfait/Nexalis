@@ -12,12 +12,14 @@
     <div class="row">
         {% if forms %}
             {% for form in forms %}
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4" id="form-{{ form.id }}">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">{{ form.title or "Untitled Form" }}</h5>
                             <p class="card-text">{{ form.description or "No description available" }}</p>
                             <a href="{{ url_for('frontend.view_form', form_id=form.id) }}" class="btn btn-secondary">View Form</a>
+                            <!-- Delete button -->
+                            <button class="btn btn-danger mt-2 delete-btn" data-form-id="{{ form.id }}">Delete</button>
                         </div>
                         <div class="card-footer text-muted">
                             Created on {{ form.creation_date | default("Unknown date") }}
@@ -36,4 +38,32 @@
         </a>
     </div>
 </div>
+
+<script>
+    // Delete form using AJAX
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const formId = this.getAttribute('data-form-id');
+            const confirmation = confirm('Are you sure you want to delete this form?');
+            if (confirmation) {
+                fetch(`/frontend/delete_form/${formId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer {{ session.token }}`
+                    },
+                })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById(`form-${formId}`).remove();
+                        alert('Form deleted successfully');
+                    } else {
+                        alert('Failed to delete form');
+                    }
+                });
+            }
+        });
+    });
+</script>
 {% endblock %}
+

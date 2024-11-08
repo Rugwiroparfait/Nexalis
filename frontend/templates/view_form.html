@@ -7,6 +7,15 @@
     {% if form %}
         <h2 class="text-center">{{ form.title }}</h2>
         <p class="text-muted text-center">{{ form.description }}</p>
+        <div class="text-center mt-4">
+            <!-- Add shareable link section -->
+            <label>Shareable Link:</label>
+            <div class="input-group mb-3">
+                <input id="shareLink" type="text" class="form-control" readonly 
+                    value="{{ url_for('frontend.public_form_view', form_id=form.id, _external=True) }}">
+                <button class="btn btn-outline-secondary" onclick="copyToClipboard()">Copy Link</button>
+            </div>
+        </div>
 
         <!-- Display questions in the form with delete/update options -->
         <div class="form-group">
@@ -40,7 +49,6 @@
 
         <!-- Button to view responses -->
         <a href="{{ url_for('frontend.view_responses', form_id=form.id) }}" class="btn btn-primary mt-3">See Responses</a>
-        <a href="{{ url_for('frontend.share_link_view', form_id=form.id, link_token=form.link_token) }}" class="btn btn-info mt-3">Share Link</a>
     {% else %}
         <div class="alert alert-danger">
             Form not found or you don't have permission to view this form.
@@ -72,6 +80,15 @@ function deleteQuestion(questionId, formId) {
         console.error("Error:", error);
     });
 }
+</script>
+<script>
+    function copyToClipboard() {
+        var copyText = document.getElementById("shareLink");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+        navigator.clipboard.writeText(copyText.value);
+        alert("Link copied to clipboard!");
+    }
 </script>
 {% endblock %}
 

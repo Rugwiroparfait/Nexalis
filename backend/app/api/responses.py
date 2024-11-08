@@ -70,3 +70,47 @@ def get_response(id):
 
     return jsonify({"response": response.to_dict()}), 200
 
+@bp.route('/submit_public_response', methods=['POST'])
+def submit_public_response():
+    """
+    Submit responses to a form (allows both public and authenticated users).
+    """
+    data = request.get_json()
+    form_id = data.get('form_id')
+    answers = data.get('answers')  # Expecting a list of answers with question_id and answer text
+
+    if not form_id or not answers:
+        return jsonify({"error": "Form ID and answers are required"}), 400
+
+    # Retrieve user ID from JWT token if available
+    user_id = None
+    try:
+        user_id = get_jwt_identity()
+    except Exception:
+        pass  # Continue with user_id as None for public access
+
+    # Process each answer in the answers list
+    responses = []
+    for answer_data in answers:
+        question_id = answer_data.get('question_id')
+        answer_text = answer_data.get('answer')  # Matches the 'answers' field in the Response model
+
+        # Validate required fields within each answer
+        if not question_id or answer_text is None:
+            return jsonify({"error": "Each answer must include question_id and answer"}), 400
+
+        # Ensure the question belongs to the specified form
+        question = Question.query.filter_by(id=question_id, form_id=form_id).first()
+        if not question:
+            return jsonify({"error": f"Question with ID {question_id} does not exist in form {form_id}"}), 404
+
+        # Create a new Response instance
+        new_response = Response(form_id=form_id, question_id=question_id, answers=answer_text)
+        db.session.add(new_response)
+        responses.append(new_response)
+
+    # Commit all responses at once
+    db.session.commit()
+
+    # Return a list of all responses as confirmation
+    return jsonify({"responses": [response.to_dict() for response in responses]}), 201

@@ -172,3 +172,12 @@ def list_forms():
         "forms": [form.to_dict(include_questions=True) for form in forms]
     }), 200
 
+@bp.route('/public/<int:form_id>', methods=['GET'])
+def get_public_form(form_id):
+    """Fetch form details for public access (no authentication required)."""
+    form = Form.query.get(form_id)
+    if form:
+        return jsonify({'form': form.to_dict()})
+    else:
+        return jsonify({'error': 'Form not found'}), 404
+

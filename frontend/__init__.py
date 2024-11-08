@@ -6,4 +6,4 @@ bp = Blueprint('frontend', __name__,
               url_prefix='/app')
 
 # Import views to register with blueprint
-from .views import auth, forms, responses, users
+from .views import auth, forms, responses, users, public_forms

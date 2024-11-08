@@ -207,29 +207,16 @@ def delete_question(id, form_id):
     Redirects back to the form view page with a success or failure message.
     """
     token = session.get('token')
-    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-type': 'application/json'
+    }
 
-    try:
-        # Send DELETE request to the API
-        response = requests.delete(
-            f'http://127.0.0.1:5000/api/questions/delete_question/{id}',
-            headers=headers
-        )
-
-        # Check response status
-        if response.status_code == 200:
-            flash("Question deleted successfully.", "success")
-        else:
-            # Extract error message from the API response if available
-            error_message = response.json().get("error", "Failed to delete question.")
-            flash(f"Error: {error_message}", "danger")
-
-        # Log response content for debugging
-        print(f"API Response: {response.status_code} - {response.json()}")
-
-    except requests.exceptions.RequestException as e:
-        # Handle request exceptions and display message
-        flash("An error occurred while connecting to the server.", "danger")
-        print(f"RequestException: {e}")
-
-    print(f"Question ID: {id}, Form ID: {form_id}")
+    response = requests.delete(f'http://127.0.0.1:5000/api/forms/delete_form/{id}', headers=headers)
+    
+    if response.status_code == 200:
+        flash('Form deleted successfully!', 'success')
+    else:
+        flash('Failed to delete the form.', 'danger')
+    
+    return redirect(url_for('frontend.dashboard_view'))

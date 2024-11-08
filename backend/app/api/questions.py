@@ -81,3 +81,13 @@ def get_form_questions(form_id):
 
     return jsonify({"questions": questions_data}), 200
 
+# In your questions blueprint file
+@bp.route('/public/<int:form_id>/questions', methods=['GET'])
+def get_public_questions(form_id):
+    """Fetch questions for a form without requiring authentication."""
+    questions = Question.query.filter_by(form_id=form_id).all()
+    if questions:
+        return jsonify({'questions': [question.to_dict() for question in questions]})
+    else:
+        return jsonify({'error': 'No questions found for this form'}), 404
+
