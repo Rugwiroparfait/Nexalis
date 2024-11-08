@@ -6,39 +6,10 @@ Nexalis is a Flask-based web application for creating and managing online forms,
 
 ```
 nexalis/
-│
 ├── backend/
-│   ├── app/
-│   │   ├── __init__.py
-│   │   ├── models/
-│   │   │   ├── __init__.py
-│   │   │   ├── form.py
-│   │   │   ├── question.py
-│   │   │   └── response.py
-│   │   ├── schemas/
-│   │   │   ├── __init__.py
-│   │   │   ├── form_schema.py
-│   │   │   ├── question_schema.py
-│   │   │   └── response_schema.py
-│   │   ├── api/
-│   │   │   ├── __init__.py
-│   │   │   ├── forms.py
-│   │   │   ├── questions.py
-│   │   │   ├── responses.py
-│   │   │   └── users.py
-│   │   ├── utils/
-│   │   │   ├── __init__.py
-│   │   │   └── helpers.py
-│   ├── migrations/
-│   ├── tests/
-│   │   ├── __init__.py
-│   │   ├── test_forms.py
-│   │   ├── test_questions.py
-│   │   └── test_responses.py
-│   ├── config.py
-│   └── run.py
-│
+│   └── [existing structure...]
 ├── frontend/
+│   ├── __init__.py
 │   ├── static/
 │   │   ├── css/
 │   │   │   └── style.css
@@ -51,16 +22,13 @@ nexalis/
 │   │   ├── view_form.html
 │   │   ├── login.html
 │   │   └── signup.html
-│   └── views.py
-│       ├── login_view()
-│       ├── signup_view()
-│       └── form_views()
-│
-├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml
+│   └── views/
+│       ├── __init__.py
+│       ├── auth.py
+│       ├── forms.py
+│       ├── responses.py
+│       └── users.py
 └── README.md
-
 
 ```
 

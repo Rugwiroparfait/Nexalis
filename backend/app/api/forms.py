@@ -128,7 +128,7 @@ def update_form(id):
         db.session.rollback()
         return jsonify({"status": "error", "message": "Failed to update form"}), 500
 
-@bp.route('/forms/<int:id>', methods=['DELETE'])
+@bp.route('/delete_form/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_form(id):
     """
