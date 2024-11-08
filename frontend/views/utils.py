@@ -1,5 +1,6 @@
 from functools import wraps
 from flask import session, redirect, url_for, flash
+from flask import current_app
 
 def login_required(f):
     @wraps(f)
@@ -10,3 +11,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+@current_app.template_filter("get_key")
+def get_key(value, key, default="N/A"):
+    """Retrieve a key from a dictionary, return default if not found."""
+    return value.get(key, default)

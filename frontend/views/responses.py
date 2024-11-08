@@ -1,55 +1,11 @@
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, session, flash, send_file, request, redirect, url_for
 import requests
 import csv
+import datetime
 from io import StringIO
 from .. import bp
 from .utils import login_required
 
-@bp.route('/response/<int:form_id>', methods=['GET', 'POST'])
-@login_required
-def response_view(form_id):
-    if request.method == 'GET':
-        response = requests.get(
-            f'http://127.0.0.1:5000/api/questions/{form_id}/questions',
-            headers={'Authorization': f'Bearer {session["token"]}'}
-        )
-        questions = response.json().get("questions", []) if response.status_code == 200 else []
-        return render_template('response.html', questions=questions, form_id=form_id)
-
-    elif request.method == 'POST':
-        answers = [{"question_id": int(q), "answer": a} for q, a in zip(request.form.getlist('question_id'), request.form.getlist('answers'))]
-        response_data = {'form_id': form_id, 'answers': answers}
-        response = requests.post(
-            'http://127.0.0.1:5000/api/responses/submit_response',
-            headers={'Authorization': f'Bearer {session["token"]}'},
-            json=response_data
-        )
-        flash("Response submitted successfully!" if response.status_code == 201 else "Failed to submit response.", "success" if response.status_code == 201 else "danger")
-        return redirect(url_for('frontend.dashboard_view'))
-
-@bp.route('/form/<int:form_id>/responses', methods=['GET'])
-@login_required
-def view_responses(form_id):
-    token = session.get('token')
-    headers = {'Authorization': f'Bearer {token}', 'Content-type': 'application/json'}
-
-    try:
-        response = requests.get(
-            f'http://127.0.0.1:5000/api/forms/get_response/{form_id}',
-            headers=headers
-        )
-
-        if response.status_code == 200:
-            responses = response.json().get("responses", [])
-        else:
-            flash("Failed to retrieve responses. Please try again later.", "danger")
-            responses = []
-
-    except requests.RequestException:
-        flash("Error retrieving responses. Please try again later.", "danger")
-        responses = []
-
-    return render_template("view_responses.html", form_id=form_id, responses=responses)
 
 
 @bp.route('/form/<int:form_id>/responses', methods=['GET'])
@@ -63,6 +19,11 @@ def view_form_responses(form_id):
         form_response = requests.get(f'http://127.0.0.1:5000/api/forms/get_forms/{form_id}', headers=headers)
         form_response.raise_for_status()
         form = form_response.json().get('form')
+        
+        # If form data is missing, handle it gracefully
+        if not form:
+            flash("Form data could not be retrieved or does not exist.", "danger")
+            return redirect(url_for('frontend.dashboard_view'))
 
         # Fetch questions and responses
         questions_response = requests.get(f'http://127.0.0.1:5000/api/questions/{form_id}/questions', headers=headers)
@@ -77,18 +38,24 @@ def view_form_responses(form_id):
         question_texts = [question['text'] for question in questions]
         response_data = []
         for response in responses:
-            row = {'Submission Date': datetime.datetime.fromisoformat(response['created_at'].replace('Z', '')).strftime('%Y-%m-%d %H:%M:%S')}
-            for answer in response['answers']:
+            # Default 'created_at' to "N/A" if it doesn't exist
+            created_at = response.get('created_at', None)
+            row = {
+                'Submission Date': datetime.datetime.fromisoformat(created_at.replace('Z', '')).strftime('%Y-%m-%d %H:%M:%S') if created_at else "N/A"
+            }
+            for answer in response.get('answers', []):  # Safely access 'answers' with .get() to prevent errors
                 question_text = next((q['text'] for q in questions if q['id'] == answer['question_id']), None)
                 if question_text:
-                    row[question_text] = answer['answer']
+                    row[question_text] = answer.get('answer', "N/A")  # Default answer to "N/A" if missing
             response_data.append(row)
 
+        # Render the template with form, questions, and responses data
         return render_template('view_responses.html', form=form, questions=question_texts, responses=response_data)
 
     except requests.RequestException as e:
         flash(f"Error retrieving form responses: {str(e)}", "danger")
         return redirect(url_for('frontend.dashboard_view'))
+
 
 @bp.route('/form/<int:form_id>/responses/csv', methods=['GET'])
 @login_required
@@ -106,7 +73,7 @@ def export_responses_csv(form_id):
         questions_response.raise_for_status()
         questions = questions_response.json().get('questions', [])
 
-        responses_response = requests.get(f'http://127.0.0.1:5000/api/responses/get_responses/{form_id}', headers=headers)
+        responses_response = requests.get(f'http://127.0.0.1:5000/api/responses/get_response/{form_id}', headers=headers)
         responses_response.raise_for_status()
         responses = responses_response.json().get('responses', [])
 
@@ -141,4 +108,3 @@ def export_responses_csv(form_id):
     except requests.RequestException as e:
         flash(f"Error exporting responses: {str(e)}", "danger")
         return redirect(url_for('frontend.view_form', form_id=form_id))
-

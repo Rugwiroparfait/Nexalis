@@ -2,6 +2,7 @@ from flask_wtf.csrf import CSRFProtect
 
 csrf = CSRFProtect()
 
+from .utils import * 
 from .auth import *
 from .forms import *
 from .responses import *

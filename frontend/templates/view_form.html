@@ -48,7 +48,7 @@
         </div>
 
         <!-- Button to view responses -->
-        <a href="{{ url_for('frontend.view_responses', form_id=form.id) }}" class="btn btn-primary mt-3">See Responses</a>
+        <a href="{{ url_for('frontend.view_form_responses', form_id=form.id) }}" class="btn btn-primary mt-3">See Responses</a>
     {% else %}
         <div class="alert alert-danger">
             Form not found or you don't have permission to view this form.
