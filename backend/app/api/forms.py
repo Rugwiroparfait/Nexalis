@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.exc import SQLAlchemyError
 from app.models.form import Form
 from app.models.question import Question
 from app import db
@@ -137,16 +138,22 @@ def delete_form(id):
     try:
         user_id = get_jwt_identity()
         form = Form.query.filter_by(id=id, user_id=user_id).first_or_404()
+
         db.session.delete(form)
         db.session.commit()
-        
+
         return jsonify({
             "status": "success",
             "message": "Form deleted successfully"
         }), 200
-    except Exception as e:
+
+    except SQLAlchemyError as e:
         db.session.rollback()
-        return jsonify({"status": "error", "message": "Failed to delete form"}), 500
+        print(f"SQLAlchemyError occurred: {e}")  # Log the specific error
+        return jsonify({
+            "status": "error",
+            "message": "Failed to delete form due to a database error."
+        }), 500
 
 @bp.route('/forms/link/<string:link_token>', methods=['GET'])
 def get_form_by_link(link_token):

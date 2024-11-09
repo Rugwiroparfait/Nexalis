@@ -10,7 +10,7 @@ class Form(db.Model):
     description = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     # relationship with question
-    questions = db.relationship('Question', backref='form', lazy=True)
+    questions = db.relationship('Question', backref='form', lazy=True,cascade="all, delete-orphan")
 
     # relationship with user
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
