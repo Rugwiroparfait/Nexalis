@@ -114,3 +114,21 @@ def submit_public_response():
 
     # Return a list of all responses as confirmation
     return jsonify({"responses": [response.to_dict() for response in responses]}), 201
+
+@bp.route('/get_responses/<int:form_id>', methods=['GET'])
+@jwt_required()
+def get_responses(form_id):
+    """
+    Get all responses for a specific form
+    ---
+    This endpoint retrieves all responses associated with a specific form ID.
+    Response: JSON array of response objects.
+    """
+    responses = Response.query.filter_by(form_id=form_id).all()
+
+    if not responses:
+        return jsonify({"error": f"No responses found for form ID {form_id}"}), 404
+
+    # Convert each response to a dictionary
+    response_data = [response.to_dict() for response in responses]
+    return jsonify({"responses": response_data}), 200

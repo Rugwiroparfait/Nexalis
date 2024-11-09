@@ -5,6 +5,7 @@
 {% block content %}
 <div class="container mt-5">
     <h2>Responses for {{ form['title'] }}</h2>
+    <p>Created on: {{ form.creation_date | default("Unknown date") }}</p>
 
     <table class="table table-bordered mt-4">
         <thead>
@@ -18,7 +19,7 @@
         <tbody>
             {% for response in responses %}
             <tr>
-                <td>{{ response['Submission Date'] }}</td>
+                <td>{{ response.get('Submission Date', "N/A") }}</td>
                 {% for question in questions %}
                     <td>{{ response.get(question, "N/A") }}</td>
                 {% endfor %}
