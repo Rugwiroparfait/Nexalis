@@ -69,45 +69,76 @@ def login():
 
     return jsonify({"error": "Invalid credentials"}), 401
 
-@users_bp.route('/user', methods=['GET'])
+@users_bp.route('/get_user', methods=['GET'])
 @token_required
-def get_user_info(current_user):
-    """Get user details API."""
-    return jsonify(current_user.to_dict()), 200
+def get_user_data(current_user):
+    """
+    Retrieve current user data.
+    ---
+    This endpoint returns the user's name and email if they are authenticated.
+    Headers: 
+        Authorization: Bearer <JWT_TOKEN>
+    Response: JSON object with `name` and `email`.
+    """
+    # Retrieve the user information from the database
+    print(request.headers.get('Authorization'))
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
 
-@users_bp.route('/profile', methods=['GET'])
-@token_required
-def get_profile(current_user):
-    """Retrieve user profile information."""
     return jsonify({
-        'name': current_user.username,
-        'email': current_user.email
+        'name': user.username,
+        'email': user.email
     }), 200
 
-@users_bp.route('/update', methods=['PUT'])
+@users_bp.route('/update_user', methods=['PUT'])
 @token_required
-def update_profile(current_user):
-    """Update user profile information."""
+def update_user_data(current_user):
+    """
+    Update user data: email, username, and password.
+    ---
+    This endpoint allows an authenticated user to update their email, username, or password.
+    Headers:
+        Authorization: Bearer <JWT_TOKEN>
+    Payload:
+        JSON object with fields `username`, `email`, `password` (optional)
+    Response:
+        JSON object with success message or error details.
+    """
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    
     data = request.get_json()
-    username = data.get('username', current_user.username)
-    email = data.get('email', current_user.email)
+    # Extract data from the request body
+    new_username = data.get('username')
+    new_email = data.get('email')
+    new_password = data.get('password')
 
-    # Check if the new email or username is taken by another user
-    if User.query.filter(User.username == username, User.id != current_user.id).first():
-        return jsonify({'error': 'Username is already taken'}), 409
-    if User.query.filter(User.email == email, User.id != current_user.id).first():
-        return jsonify({'error': 'Email is already registered'}), 409
+    # Update username if provided and check if it already exists
+    if new_username:
+        existing_user = User.query.filter_by(username=new_username).first()
+        if existing_user and existing_user.id != current_user.id:
+            return jsonify({'error': 'Username already taken'}), 409
+        current_user.username = new_username
 
-    current_user.username = username
-    current_user.email = email
+    # Update email if provided and check if it already exists
+    if new_email:
+        existing_user = User.query.filter_by(email=new_email).first()
+        if existing_user and existing_user.id != current_user.id:
+            return jsonify({'error': 'Email already in use'}), 409
+        current_user.email = new_email
 
-    if 'password' in data and data['password']:
-        current_user.password_hash = hash_password(data['password'])
+    # Update password if provided
+    if new_password:
+        current_user.set_password(new_password)
 
-    try:
-        db.session.commit()
-        return jsonify({'message': 'Profile updated successfully!'}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': 'Failed to update profile'}), 500
+    # Commit changes to the database
+    db.session.commit()
 
+    return jsonify({'message': 'User data updated successfully'}), 200

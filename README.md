@@ -34,6 +34,7 @@
 - **Question & Response Handling**: Add questions to forms, collect responses, and display them.
 - **Dashboard**: A personalized dashboard to manage forms and view responses.
 - **Modular Design**: Clear separation between frontend and backend for easy maintainability.
+- **Response Export**: Download responses  in **CSV** format for further analyis
 
 ---
 
@@ -138,6 +139,23 @@ def dashboard_view():
     forms_response = requests.get('http://127.0.0.1:5000/api/forms/get_form', headers=headers)
     return render_template("dashboard.html", user=user_response.json(), forms=forms_response.json().get("forms", []))
 ```
+### Asynchronous Example - Delete Form (AJAX)
+
+The **AJAX** requests enhance the app's responsiveness, allowing certain actions, like deleting a form, to occur asynchronously without refreshing the page. Example AJAX code:
+
+```javascript
+// JavaScript to delete a form using AJAX
+function deleteForm(formId) {
+    fetch(`/api/forms/${formId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+    }).then(response => {
+        if (response.ok) {
+            document.getElementById(`form-${formId}`).remove(); // Remove form from DOM
+        }
+    });
+}
+```
 
 ### API Endpoints
 
@@ -146,21 +164,38 @@ All backend APIs are prefixed with `/api/` and are organized by feature. Here ar
 1. **User Management**:
    - `POST /api/users/signup`: Register a new user.
    - `POST /api/users/login`: Authenticate and receive a JWT token.
+   - `GET /users/get_user`: retrieve the user name, email and password.
+   - `PUT /users/update_user`: Update the user name, emai and passord.
 
 2. **Form Management**:
-   - `GET /api/forms/get_form`: Retrieve forms for the authenticated user.
-   - `POST /api/forms`: Create a new form.
+   - `GET /api/forms/get_form`: Retrieve all forms for the authenticated user.
+   - `POST /api/forms/create_form`: Create a new form.
+   - `GET /api/questions/<form_id>/questions`: Retrieve all form's info.
+   - `PUT /api/forms/update_forms/<form_id>`: Update the form's title and description.
+   - `DELETE /api/forms/delete_form/<form_id>`: delete a form with given form_id.
+   - `GET /api/forms/public/<int:form_id>`: retrieve form questionnaire data for end user without JWT token.
+   - `GET /api/forms/get_forms/<int:id>` : retrieve specific form for authenticated user.
+3. **Questions**:
+    - `GET /api/questions/create_question` : create a new question
+    - `DELETE /api/questions/delete_questions<int:id>` : delete question with a given id.
 
-3. **Responses**:
-   - `POST /api/forms/<form_id>/responses`: Submit a response to a form.
-   - `GET /api/forms/<form_id>/responses`: Retrieve all responses to a form.
+    - `GET /questions/<int:id>/questions`: get all form questions with their responses.
+
+    - `GET /questions/public/<int:id> questions`: get questions without authentication (used in responding)
+    
+    
+4. **Responses**:
+   - `POST /api/responses/submit_response`: Submit a response to a form given a Bearer Key in header to identify the user.
+   - `GET /api/responses/get_response/<int:id> `: get response with id.
+   - `POST /api/responses/submit_public_response`: submit the responses in authenticated form.
+   - `GET /api/responses/get_responses/<int:id`: get responses of a given form_id
 
 > **Note**: All protected endpoints require a valid JWT token in the headers.
 
 ### Configuration
 
 Configuration settings for the app are located in `backend/config.py`. This includes settings for:
-- Database (SQLite or PostgreSQL, etc.)
+- Database (SQLite)
 - JWT secret key for authentication
 - Debug mode
 
@@ -182,8 +217,9 @@ Unit tests are located in `backend/tests/`. To run tests:
 
 ## 🤝 Collaborators
 
-- **Your Name** ([@Rugwiroparfait](https://github.com/Rugwiroparfait)) - Developer and Project Lead
-
+- **NSANZIMANA RUGWIRO Dominique Parfait** ([@Rugwiroparfait](https://github.com/Rugwiroparfait)) - Developer and Project Lead
+- **X (ex-Twitter)**
+[x](https://x.com/RugwiroParfait])
 Feel free to reach out with questions, suggestions, or contributions!
 
 ---
