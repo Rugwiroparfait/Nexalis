@@ -121,8 +121,9 @@ The app will be available at `http://127.0.0.1:5000`.
 
 ### Key Routes
 
-- **Homepage**: `http://127.0.0.1:5000/`
-- **Dashboard**: Accessible after login; displays forms created by the user.
+- **Signup**: `http://127.0.0.1:5000/app/signup`
+- **Login**: `http://127.0.0.1:5000/app/login`
+- **Dashboard**: `http://127.0.0.1:5000/app/dashboard` Accessible after login; displays forms created by the user.
 - **Form Management**: Create, view, edit, and delete forms via the dashboard.
 - **Public Forms**: Shareable forms for collecting responses without requiring a login.
 
