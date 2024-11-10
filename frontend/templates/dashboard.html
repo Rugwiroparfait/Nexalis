@@ -18,11 +18,10 @@
                             <h5 class="card-title">{{ form.title or "Untitled Form" }}</h5>
                             <p class="card-text">{{ form.description or "No description available" }}</p>
                             <a href="{{ url_for('frontend.view_form', form_id=form.id) }}" class="btn btn-secondary">View Form</a>
+                            <!-- Update button -->
+                            <button class="btn btn-warning mt-2 update-btn" data-form-id="{{ form.id }}">Update</button>
                             <!-- Delete button -->
                             <button class="btn btn-danger mt-2 delete-btn" data-form-id="{{ form.id }}">Delete</button>
-                        </div>
-                        <div class="card-footer text-muted">
-                            Created on {{ form.creation_date | default("Unknown date") }}
                         </div>
                     </div>
                 </div>
@@ -31,15 +30,88 @@
             <p class="text-center">You haven't created any forms yet.</p>
         {% endif %}
     </div>
+</div>
 
-    <div class="text-center mt-3">
-        <a href="{{ url_for('frontend.profile_view') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-user"></i> Go to Profile
-        </a>
+<!-- Update Form Modal -->
+<div class="modal fade" id="updateFormModal" tabindex="-1" aria-labelledby="updateFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateFormModalLabel">Update Form</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateForm">
+                    <div class="mb-3">
+                        <label for="formTitle" class="form-label">Form Title</label>
+                        <input type="text" class="form-control" id="formTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="formDescription" class="form-label">Form Description</label>
+                        <textarea class="form-control" id="formDescription" rows="3" required></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="saveFormChanges">Save Changes</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
+    let selectedFormId = null;
+
+    // Open update form modal
+    document.querySelectorAll('.update-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            selectedFormId = this.getAttribute('data-form-id');
+            const formTitle = this.closest('.card-body').querySelector('.card-title').innerText;
+            const formDescription = this.closest('.card-body').querySelector('.card-text').innerText;
+
+            // Populate modal with current title and description
+            document.getElementById('formTitle').value = formTitle;
+            document.getElementById('formDescription').value = formDescription;
+
+            // Show modal
+            const updateFormModal = new bootstrap.Modal(document.getElementById('updateFormModal'));
+            updateFormModal.show();
+        });
+    });
+
+    // Save updated form data
+    document.getElementById('saveFormChanges').addEventListener('click', function() {
+        const updatedTitle = document.getElementById('formTitle').value;
+        const updatedDescription = document.getElementById('formDescription').value;
+
+        fetch(`/api/forms/update_forms/${selectedFormId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem("token") || "{{ session.token }}"}`
+            },
+            body: JSON.stringify({ title: updatedTitle, description: updatedDescription })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Failed to update form');
+            }
+        })
+        .then(data => {
+            // Update form title and description on the dashboard
+            document.querySelector(`#form-${selectedFormId} .card-title`).innerText = data.title;
+            document.querySelector(`#form-${selectedFormId} .card-text`).innerText = data.description;
+
+            // Close modal
+            const updateFormModal = bootstrap.Modal.getInstance(document.getElementById('updateFormModal'));
+            updateFormModal.hide();
+        })
+        .catch(error => {
+            console.error('Error updating form:', error);
+            alert('An error occurred. Please try again.');
+        });
+    });
+
     // Delete form using AJAX
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function() {
@@ -72,6 +144,4 @@
         });
     });
 </script>
-
 {% endblock %}
-

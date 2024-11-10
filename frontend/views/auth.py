@@ -47,7 +47,7 @@ def login_view():
             
     return render_template("login.html")
 
-bp.route('/logout')
+@bp.route('/logout')
 def logout_view():
     session.clear()
     flash("You have been logged out.", "info")

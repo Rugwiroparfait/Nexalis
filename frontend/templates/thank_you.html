@@ -1,96 +1,91 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - Nexalis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Base styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+            color: #333;
+        }
 
-{% block title %}Thank You - Nexalis{% endblock %}
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
 
-{% block content %}
-<div class="container text-center mt-5">
-    <div class="thank-you-wrapper">
-        <!-- Animated check icon -->
-        <div class="checkmark">
-            <i class="fas fa-check-circle"></i>
+        /* Thank-you wrapper styles */
+        .thank-you-wrapper {
+            margin-top: 100px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Checkmark icon */
+        .checkmark {
+            font-size: 80px;
+            color: #28a745;
+            animation: bounceIn 0.5s ease;
+            margin-bottom: 20px;
+        }
+
+        .thank-you-message {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            opacity: 0;
+            animation: fadeUp 1s ease-in-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        .thank-you-subtext {
+            font-size: 1.2rem;
+            color: #555;
+            opacity: 0;
+            animation: fadeUp 1s ease-in-out forwards;
+            animation-delay: 0.8s;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="thank-you-wrapper">
+            <!-- Animated check icon -->
+            <div class="checkmark">
+                <i class="fas fa-check-circle"></i>
+            </div>
+
+            <!-- Thank you message with animation -->
+            <h1 class="thank-you-message">Thank You!</h1>
+            <p class="thank-you-subtext">Your submission has been received.</p>
         </div>
-        
-        <!-- Thank you message with animation -->
-        <h1 class="thank-you-message">Thank You!</h1>
-        <p class="thank-you-subtext">Your submission has been received.</p>
-
-        <a href="{{ url_for('frontend.dashboard_view') }}" class="btn btn-primary mt-4">
-            Go Back to Dashboard
-        </a>
     </div>
-</div>
-{% endblock %}
-
-{% block styles %}
-<style>
-/* Center the thank-you message and style elements */
-.thank-you-wrapper {
-    margin-top: 100px;
-    animation: fadeIn 1s ease-in-out;
-}
-
-/* Checkmark icon animation */
-.checkmark {
-    font-size: 80px;
-    color: #28a745;
-    animation: bounceIn 0.5s ease;
-    margin-bottom: 20px;
-}
-
-.thank-you-message {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #333;
-    opacity: 0;
-    animation: fadeUp 1s ease-in-out forwards;
-    animation-delay: 0.5s;
-}
-
-.thank-you-subtext {
-    font-size: 1.2rem;
-    color: #555;
-    opacity: 0;
-    animation: fadeUp 1s ease-in-out forwards;
-    animation-delay: 0.8s;
-}
-
-/* Button animation */
-.btn-primary {
-    transform: scale(0);
-    animation: scaleUp 1s ease forwards;
-    animation-delay: 1s;
-}
-
-/* Animations */
-@keyframes fadeIn {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes bounceIn {
-    0% { transform: scale(0.3); opacity: 0; }
-    50% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); }
-}
-
-@keyframes fadeUp {
-    0% { opacity: 0; transform: translateY(10px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes scaleUp {
-    0% { transform: scale(0); }
-    100% { transform: scale(1); }
-}
-</style>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    // Optionally, you could add a timer to redirect the user automatically after a few seconds
-    setTimeout(function() {
-        window.location.href = "{{ url_for('frontend.dashboard_view') }}";
-    }, 5000);  // Redirect after 5 seconds
-</script>
-{% endblock %}
+</body>
+</html>
 
