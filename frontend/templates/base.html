@@ -4,33 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Nexalis{% endblock %}</title>
+    <!-- Bootstrap and icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
-</head>
-<body style="background-color: #f4f7fa; font-family: Arial, sans-serif;">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Custom styles -->
+    <style>
+        :root {
+            --primary: #0070f3;
+            --secondary: #6c63ff;
+            --accent: #f81ce5;
+            --dark: #121212;
+            --light: #fafafa;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #121212 0%, #1e1e2f 100%);
+            color: var(--light);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(18, 18, 18, 0.8) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--light) !important;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+        
+        .navbar-brand span {
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .nav-item {
+            margin: 0 0.5rem;
+        }
+        
+        .nav-link {
+            color: var(--light) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary) !important;
+            transform: translateY(-2px);
+        }
+        
+        .btn-nexalis {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(0, 118, 255, 0.39);
+        }
+        
+        .btn-nexalis:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 118, 255, 0.5);
+        }
+        
+        .content-wrapper {
+            padding: 2rem 0;
+        }
+        
+        .card {
+            background: rgba(30, 30, 47, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        footer {
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
 
+        /* Glowing dot animation */
+        .glow-dot {
+            position: relative;
+        }
+        
+        .glow-dot::after {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            margin-left: 8px;
+            box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">Nexalis</a>
+            <a class="navbar-brand" href="#"><span>Nex</span>alis<span class="glow-dot"></span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% block navigation_items %}
+                    <!-- You can add default navigation items here -->
+                    {% endblock %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('frontend.logout_view') }}">
-                            <i class="bi bi-box-arrow-in-right"></i> Logout
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('frontend.profile_view') }}">
-                            <i class="bi bi-person-plus"></i> profile
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('frontend.dashboard_view') }}">
-                            <i class="bi bi-speedometer2"></i> Dashboard
+                        <a class="btn btn-nexalis" href="{{ url_for('frontend.logout_view') }}">
+                            <i class="bi bi-box-arrow-right"></i> Logout
                         </a>
                     </li>
                 </ul>
@@ -52,13 +161,29 @@
         {% endwith %}
     </div>
 
-    <!-- Main Content -->
-    <div class="container mt-5">
+    <!-- Content -->
+    <div class="container content-wrapper">
         {% block content %}{% endblock %}
     </div>
 
-    <!-- Scripts -->
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">© 2023 <span class="fw-bold">Nexalis</span>. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Any additional JavaScript -->
+    {% block scripts %}{% endblock %}
 </body>
 </html>
 

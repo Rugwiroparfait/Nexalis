@@ -1,58 +1,573 @@
 {% extends "base.html" %}
 
+{% block title %}Create Form - Nexalis{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
-    <h2>Create New Form</h2>
-    <form method="POST" action="{{ url_for('frontend.create_form_view') }}">
-        <div class="mb-3">
-            <label for="title" class="form-label">Form Title</label>
-            <input type="text" class="form-control" id="title" name="title" required>
-        </div>
-        <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-        </div>
-        
-        <div id="questions-container" class="mb-3">
-            <label class="form-label">Questions</label>
-            <div class="input-group mb-2 question-input">
-                <input type="text" class="form-control" name="questions[]" placeholder="Enter question" required>
-                <button type="button" class="btn btn-danger remove-question">Remove</button>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="form-creator-card">
+                <div class="form-header">
+                    <div class="icon-container">
+                        <i class="bi bi-clipboard-data"></i>
+                    </div>
+                    <h2>Create New Survey</h2>
+                    <p class="text-muted">Design your professional survey with Nexalis</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('frontend.create_form_view') }}" id="survey-form">
+                    <div class="survey-section mb-4 basic-info">
+                        <div class="section-header">
+                            <span class="section-number">1</span>
+                            <h4>Basic Information</h4>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="title" name="title" placeholder="Survey Title" required>
+                            <label for="title">Survey Title</label>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="description" name="description" placeholder="Description" style="height: 100px"></textarea>
+                            <label for="description">Description</label>
+                        </div>
+                    </div>
+                    
+                    <div class="survey-section mb-4 questions-section">
+                        <div class="section-header">
+                            <span class="section-number">2</span>
+                            <h4>Survey Questions</h4>
+                        </div>
+                        
+                        <div id="questions-container">
+                            <!-- Question template will be duplicated here -->
+                            <div class="question-card mb-3">
+                                <div class="question-header">
+                                    <span class="question-number">Q1</span>
+                                    <div class="question-controls">
+                                        <button type="button" class="btn btn-sm btn-icon drag-handle" title="Drag to reorder">
+                                            <i class="bi bi-grip-vertical"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-icon remove-question" title="Remove question">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="question-body">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control question-input" name="questions[]" placeholder="Enter question" required>
+                                        <label>Question Text</label>
+                                    </div>
+                                    
+                                    <div class="question-type-selector mb-3">
+                                        <label class="form-label mb-2">Question Type</label>
+                                        <div class="btn-group w-100" role="group">
+                                            <input type="radio" class="btn-check" name="questionType0" id="txtType0" value="text" checked>
+                                            <label class="btn btn-outline-primary" for="txtType0">
+                                                <i class="bi bi-fonts"></i> Text
+                                            </label>
+                                            
+                                            <input type="radio" class="btn-check" name="questionType0" id="mcType0" value="multiple-choice">
+                                            <label class="btn btn-outline-primary" for="mcType0">
+                                                <i class="bi bi-list-check"></i> Multiple Choice
+                                            </label>
+                                            
+                                            <input type="radio" class="btn-check" name="questionType0" id="ratingType0" value="rating">
+                                            <label class="btn btn-outline-primary" for="ratingType0">
+                                                <i class="bi bi-stars"></i> Rating
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="options-container d-none">
+                                        <label class="form-label">Options</label>
+                                        <div class="option-inputs">
+                                            <div class="input-group mb-2">
+                                                <input type="text" class="form-control" name="options0[]" placeholder="Option 1">
+                                                <button type="button" class="btn btn-outline-danger remove-option">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+                                            </div>
+                                            <div class="input-group mb-2">
+                                                <input type="text" class="form-control" name="options0[]" placeholder="Option 2">
+                                                <button type="button" class="btn btn-outline-danger remove-option">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary add-option">
+                                            <i class="bi bi-plus"></i> Add Option
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="add-question" class="btn btn-outline-primary btn-add-question">
+                            <i class="bi bi-plus-circle"></i> Add New Question
+                        </button>
+                    </div>
+                    
+                    <div class="survey-section mb-4 settings-section">
+                        <div class="section-header">
+                            <span class="section-number">3</span>
+                            <h4>Survey Settings</h4>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="collectEmail" name="collectEmail">
+                                    <label class="form-check-label" for="collectEmail">Collect Email Addresses</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="limitResponses" name="limitResponses">
+                                    <label class="form-check-label" for="limitResponses">Limit Responses</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline-secondary preview-btn">
+                            <i class="bi bi-eye"></i> Preview
+                        </button>
+                        <button type="submit" class="btn btn-nexalis create-btn">
+                            <span>Create Survey</span>
+                            <i class="bi bi-arrow-right-circle ms-2"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-        
-        <button type="button" class="btn btn-secondary" id="add-question">Add Question</button>
-        <button type="submit" class="btn btn-primary mt-3">Create Form</button>
-    </form>
+    </div>
 </div>
 
-<script>
-    // Add new question input field
-    document.getElementById('add-question').addEventListener('click', function () {
-        const container = document.getElementById('questions-container');
-        const questionInput = document.createElement('div');
-        questionInput.classList.add('input-group', 'mb-2', 'question-input');
-        
-        // Use backticks for template literals
-        questionInput.innerHTML = `
-            <input type="text" class="form-control" name="questions[]" placeholder="Enter question" required>
-            <button type="button" class="btn btn-danger remove-question">Remove</button>
-        `;
-        
-        container.appendChild(questionInput);
-        
-        // Add event listener for the new remove button
-        questionInput.querySelector('.remove-question').addEventListener('click', function () {
-            questionInput.remove();
-        });
-    });
-
-    // Event delegation for remove buttons (no need to duplicate this)
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-question')) {
-            event.target.closest('.question-input').remove();
+<style>
+    /* Survey Creator Styles */
+    .form-creator-card {
+        background: rgba(30, 30, 47, 0.7);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        padding: 2rem;
+        margin-bottom: 3rem;
+        animation: slideUp 0.8s forwards;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .icon-container {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 10px 25px rgba(108, 99, 255, 0.4);
+    }
+    
+    .icon-container i {
+        font-size: 2.5rem;
+        color: white;
+    }
+    
+    .survey-section {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+        transition: all 0.3s ease;
+        animation: fadeIn 0.5s forwards;
+    }
+    
+    .survey-section:hover {
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border-radius: 50%;
+        font-weight: 600;
+        margin-right: 1rem;
+        box-shadow: 0 4px 10px rgba(108, 99, 255, 0.3);
+    }
+    
+    .section-header h4 {
+        margin: 0;
+        color: var(--light);
+    }
+    
+    .question-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        animation: fadeIn 0.5s forwards;
+    }
+    
+    .question-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        border-color: rgba(108, 99, 255, 0.3);
+    }
+    
+    .question-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .question-number {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: rgba(108, 99, 255, 0.2);
+        color: var(--light);
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .question-controls {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.7);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-icon:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    .drag-handle:hover {
+        cursor: grab;
+    }
+    
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+    
+    .remove-question:hover {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+    }
+    
+    .form-floating input,
+    .form-floating textarea {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 12px;
+    }
+    
+    .form-floating input:focus,
+    .form-floating textarea:focus {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: var(--primary);
+        box-shadow: 0 0 10px rgba(0, 112, 243, 0.3);
+    }
+    
+    .form-floating label {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .question-type-selector .btn {
+        border-color: rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .question-type-selector .btn:hover {
+        background-color: rgba(108, 99, 255, 0.1);
+    }
+    
+    .question-type-selector .btn-check:checked + .btn {
+        background-color: rgba(108, 99, 255, 0.2);
+        color: white;
+        border-color: var(--primary);
+    }
+    
+    .btn-add-question {
+        width: 100%;
+        margin-top: 1rem;
+        border: 1px dashed rgba(255, 255, 255, 0.3);
+        padding: 0.75rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-add-question:hover {
+        background: rgba(108, 99, 255, 0.1);
+        border-color: var(--primary);
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    .preview-btn {
+        border-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    
+    .preview-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .create-btn {
+        background: linear-gradient(45deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 14px rgba(0, 118, 255, 0.39);
+    }
+    
+    .create-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 118, 255, 0.5);
+    }
+    
+    .create-btn i {
+        transition: transform 0.3s ease;
+    }
+    
+    .create-btn:hover i {
+        transform: translateX(5px);
+    }
+    
+    .form-check-input {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(30px);
+            opacity: 0;
         }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Question counter
+        let questionCount = 1;
+        
+        // Add new question
+        document.getElementById('add-question').addEventListener('click', function() {
+            questionCount++;
+            
+            // Clone the first question card
+            const questionTemplate = document.querySelector('.question-card').cloneNode(true);
+            
+            // Update question number
+            questionTemplate.querySelector('.question-number').textContent = `Q${questionCount}`;
+            
+            // Clear input values
+            questionTemplate.querySelectorAll('input[type="text"]').forEach(input => {
+                input.value = '';
+            });
+            
+            // Update radio button names and IDs
+            const radioButtons = questionTemplate.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach((radio, index) => {
+                radio.name = `questionType${questionCount-1}`;
+                radio.id = radio.id.replace(/\d+/, questionCount-1);
+                
+                // Also update the corresponding label's "for" attribute
+                const label = radio.nextElementSibling;
+                label.setAttribute('for', radio.id);
+            });
+            
+            // Update option input names
+            const optionInputs = questionTemplate.querySelectorAll('.options-container input');
+            optionInputs.forEach(input => {
+                input.name = `options${questionCount-1}[]`;
+            });
+            
+            // Reset option container to hidden
+            questionTemplate.querySelector('.options-container').classList.add('d-none');
+            
+            // Add event listeners for the new question
+            addQuestionEventListeners(questionTemplate);
+            
+            // Append the new question
+            document.getElementById('questions-container').appendChild(questionTemplate);
+            
+            // Add entry animation
+            questionTemplate.style.opacity = '0';
+            questionTemplate.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                questionTemplate.style.opacity = '1';
+                questionTemplate.style.transform = 'translateY(0)';
+            }, 10);
+        });
+        
+        // Add event listeners to the initial question
+        addQuestionEventListeners(document.querySelector('.question-card'));
+        
+        // Function to add event listeners to a question card
+        function addQuestionEventListeners(questionCard) {
+            // Remove question button
+            questionCard.querySelector('.remove-question').addEventListener('click', function() {
+                if (document.querySelectorAll('.question-card').length > 1) {
+                    // Add removal animation
+                    questionCard.style.opacity = '0';
+                    questionCard.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        questionCard.remove();
+                        // Update question numbers
+                        updateQuestionNumbers();
+                    }, 300);
+                } else {
+                    // Flash animation if it's the last question
+                    questionCard.style.borderColor = 'rgba(220, 53, 69, 0.5)';
+                    setTimeout(() => {
+                        questionCard.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    }, 300);
+                }
+            });
+            
+            // Question type selector
+            const typeRadios = questionCard.querySelectorAll('input[type="radio"]');
+            typeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const optionsContainer = questionCard.querySelector('.options-container');
+                    if (this.value === 'multiple-choice' || this.value === 'rating') {
+                        optionsContainer.classList.remove('d-none');
+                    } else {
+                        optionsContainer.classList.add('d-none');
+                    }
+                });
+            });
+            
+            // Add option button
+            const addOptionBtn = questionCard.querySelector('.add-option');
+            if (addOptionBtn) {
+                addOptionBtn.addEventListener('click', function() {
+                    const optionInputs = questionCard.querySelector('.option-inputs');
+                    const newOption = document.createElement('div');
+                    newOption.className = 'input-group mb-2';
+                    const optionCount = optionInputs.children.length + 1;
+                    
+                    // Get the question number from the parent card
+                    const questionIndex = parseInt(questionCard.querySelector('.question-number').textContent.replace('Q', '')) - 1;
+                    
+                    newOption.innerHTML = `
+                        <input type="text" class="form-control" name="options${questionIndex}[]" placeholder="Option ${optionCount}">
+                        <button type="button" class="btn btn-outline-danger remove-option">
+                            <i class="bi bi-dash"></i>
+                        </button>
+                    `;
+                    
+                    optionInputs.appendChild(newOption);
+                    
+                    // Add remove option event listener
+                    newOption.querySelector('.remove-option').addEventListener('click', function() {
+                        newOption.remove();
+                    });
+                    
+                    // Add entry animation
+                    newOption.style.opacity = '0';
+                    setTimeout(() => {
+                        newOption.style.opacity = '1';
+                    }, 10);
+                });
+            }
+            
+            // Remove option buttons
+            questionCard.querySelectorAll('.remove-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.input-group').remove();
+                });
+            });
+        }
+        
+        // Update question numbers
+        function updateQuestionNumbers() {
+            document.querySelectorAll('.question-card').forEach((card, index) => {
+                card.querySelector('.question-number').textContent = `Q${index + 1}`;
+            });
+        }
+        
+        // Preview button
+        document.querySelector('.preview-btn').addEventListener('click', function() {
+            alert('Preview feature will be available soon!');
+        });
+        
+        // Form submit animation
+        document.getElementById('survey-form').addEventListener('submit', function(e) {
+            const submitBtn = document.querySelector('.create-btn');
+            submitBtn.innerHTML = '<span>Creating...</span><div class="spinner-border spinner-border-sm ms-2" role="status"></div>';
+            submitBtn.disabled = true;
+            
+            // We're not preventing form submission, just adding animation
+        });
     });
 </script>
 {% endblock %}
-
